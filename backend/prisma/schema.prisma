@@ -6,10 +6,59 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+model Auxiliar {
+  id              Int              @id @default(autoincrement())
+  nome            String
+  foto            String?          // URL ou caminho da imagem
+  igreja          String
+  regiao          String
+  estadoCivil     String
+  telefone        String
+  obreiro         Boolean          @default(false)
+  batizado        Boolean          @default(false)
+  dataCadastro    DateTime         @default(now())
+
+  // Relacionamentos
+  enderecoResidencial Endereco?    @relation("EnderecoResidencial", fields: [enderecoResidencialId], references: [id])
+  enderecoResidencialId Int?
+
+  enderecoIgreja   Endereco?       @relation("EnderecoIgreja", fields: [enderecoIgrejaId], references: [id])
+  enderecoIgrejaId Int?
+
+  conjuge          Conjuge?        @relation(fields: [conjugeId], references: [id])
+  conjugeId        Int?            @unique
+}
+
+model Endereco {
+  id              Int      @id @default(autoincrement())
+  tipo            String   // "Residencial" ou "Igreja"
+  provincia       String
+  municipio       String
+  bairro          String
+  rua             String
+  numeroCasa      String?
+  pontoReferencia String?
+  
+  // Relações inversas (facultativas)
+  auxiliarResidencial Auxiliar[] @relation("EnderecoResidencial")
+  auxiliarIgreja      Auxiliar[] @relation("EnderecoIgreja")
+}
+
+model Conjuge {
+  id        Int      @id @default(autoincrement())
+  nome      String
+  telefone  String
+  foto      String?
+  obreiro   Boolean  @default(false)
+  batizado  Boolean  @default(false)
+  
+  auxiliar  Auxiliar?
 }
