@@ -7,7 +7,7 @@ import { EditAuxiliaryModal } from "./components/EditAuxiliaryModal";
 import { StatsCard } from "./components/StatsCard";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
-import { Toaster, toast } from "sonner@2.0.3";
+import { Toaster, toast } from "sonner";
 import { 
   UserPlus, 
   FileSpreadsheet, 
