@@ -8,7 +8,7 @@ import { Checkbox } from "./ui/checkbox";
 import { PhotoUpload } from "./PhotoUpload";
 import { PhoneInput } from "./PhoneInput";
 import { Separator } from "./ui/separator";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 import { Users, MapPin, AlertCircle, Heart } from "lucide-react";
 import type { Auxiliary } from "./AuxiliariesTable";
 

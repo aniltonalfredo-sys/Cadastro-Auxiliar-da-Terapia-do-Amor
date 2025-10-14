@@ -44,7 +44,7 @@ export interface Auxiliary {
     foto: string;
     obreiro: boolean;
     batizado: boolean;
-  };
+  } | null;
 }
 
 interface AuxiliariesTableProps {

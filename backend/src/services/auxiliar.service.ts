@@ -87,7 +87,7 @@ export const criarAuxiliar = async (dados: any) => {
 export const listarAuxiliares = async () => {
   try {
     return await prisma.auxiliar.findMany({
-      orderBy: { createdAt: "desc" },
+      orderBy: { dataCadastro: "desc" },
       include: {
         enderecoResidencial: true,
         enderecoIgreja: true,

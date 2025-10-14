@@ -8,14 +8,14 @@ import { Checkbox } from "./ui/checkbox";
 import { PhotoUpload } from "./PhotoUpload";
 import { PhoneInput } from "./PhoneInput";
 import { Separator } from "./ui/separator";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 import { Users, MapPin, AlertCircle, Heart } from "lucide-react";
 import type { Auxiliary } from "./AuxiliariesTable";
 
 interface NewAuxiliaryModalProps {
   open: boolean;
   onClose: () => void;
-  onSave: () => void;
+  onSave: (aux: Auxiliary) => void;
   existingAuxiliaries: Auxiliary[];
 }
 
@@ -23,17 +23,39 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
   const [estadoCivil, setEstadoCivil] = useState<string>("");
   const [foto, setFoto] = useState<string>("");
   const [fotoConjuge, setFotoConjuge] = useState<string>("");
-  
+
   // Form fields for validation
   const [nome, setNome] = useState<string>("");
   const [telefone, setTelefone] = useState<string>("");
   const [telefoneConjuge, setTelefoneConjuge] = useState<string>("");
-  
+
   // Validation states
   const [nomeError, setNomeError] = useState<string>("");
   const [telefoneError, setTelefoneError] = useState<string>("");
   const [telefoneConjugeError, setTelefoneConjugeError] = useState<string>("");
 
+  // Additional form fields
+  const [email, setEmail] = useState<string>("");
+  const [igreja, setIgreja] = useState<string>("");
+  const [regiao, setRegiao] = useState<string>("");
+  const [provinciaResidencial, setProvinciaResidencial] = useState<string>("");
+  const [municipioResidencial, setMunicipioResidencial] = useState<string>("");
+  const [bairroResidencial, setBairroResidencial] = useState<string>("");
+  const [ruaResidencial, setRuaResidencial] = useState<string>("");
+  const [numeroResidencial, setNumeroResidencial] = useState<string>("");
+  const [referenciaResidencial, setReferenciaResidencial] = useState<string>("");
+
+  const [provinciaIgreja, setProvinciaIgreja] = useState<string>("");
+  const [municipioIgreja, setMunicipioIgreja] = useState<string>("");
+  const [bairroIgreja, setBairroIgreja] = useState<string>("");
+  const [ruaIgreja, setRuaIgreja] = useState<string>("");
+  const [numeroIgreja, setNumeroIgreja] = useState<string>("");
+  const [referenciaIgreja, setReferenciaIgreja] = useState<string>("");
+
+  const [obreiro, setObreiro] = useState<boolean>(false);
+  const [batizado, setBatizado] = useState<boolean>(false);
+  const [obreiroConjuge, setObreiroConjuge] = useState<boolean>(false);
+  const [batizadoConjuge, setBatizadoConjuge] = useState<boolean>(false);
   // Real-time validation for name
   useEffect(() => {
     if (nome.trim().length === 0) {
@@ -120,7 +142,7 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate main photo
     if (!foto) {
       toast.error("Por favor, carregue a foto do auxiliar.");
@@ -149,9 +171,47 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
       return;
     }
 
-    toast.success("Auxiliar cadastrado com sucesso!");
-    onSave();
+    const novoAuxiliar = {
+      id: crypto.randomUUID(),
+      nome,
+      telefone,
+      igreja,
+      regiao,
+      estadoCivil,
+      foto,
+      obreiro,
+      batizado,
+      dataCadastro: new Date().toISOString(),
+      enderecoResidencial: {
+        provincia: provinciaResidencial,
+        municipio: municipioResidencial,
+        bairro: bairroResidencial,
+        rua: ruaResidencial,
+        numeroCasa: numeroResidencial,
+        pontoReferencia: referenciaResidencial,
+      },
+      enderecoIgreja: {
+        provincia: provinciaIgreja,
+        municipio: municipioIgreja,
+        bairro: bairroIgreja,
+        rua: ruaIgreja,
+        numeroCasa: numeroIgreja,
+        pontoReferencia: referenciaIgreja,
+      },
+      conjuge: showSpouseFields
+        ? {
+          nome,
+          telefone: telefoneConjuge,
+          foto: fotoConjuge,
+          obreiro,
+          batizado,
+        }
+        : undefined,
+    }
+
+    onSave(novoAuxiliar);
     handleClose();
+
   };
 
   const handleClose = () => {
@@ -187,7 +247,7 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
           {/* Personal Information */}
           <div>
             <h3 className="mb-4">Dados Pessoais do Auxiliar</h3>
-            
+
             {/* Photo Upload */}
             <div className="mb-6">
               <PhotoUpload
@@ -241,6 +301,8 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
                   type="email"
                   placeholder="email@exemplo.com"
                   className="bg-[#F7F8FA] border-0"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
 
@@ -270,16 +332,16 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
               </div>
 
               <div className="space-y-3 md:col-span-2">
-                <Label>Status Eclesiástico</Label>
+                <Label>Informações Eclesiásticas</Label>
                 <div className="flex gap-6">
                   <div className="flex items-center gap-2">
-                    <Checkbox id="obreiro" />
+                    <Checkbox id="obreiro" checked={obreiro} onCheckedChange={(checked: any) => setObreiro(!!checked)} />
                     <Label htmlFor="obreiro" className="cursor-pointer">
                       É Obreiro
                     </Label>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Checkbox id="batizado" />
+                    <Checkbox id="batizado" checked={batizado} onCheckedChange={(checked: any) => setBatizado(!!checked)} />
                     <Label htmlFor="batizado" className="cursor-pointer">
                       É Batizado
                     </Label>
@@ -297,11 +359,11 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
               <MapPin className="w-5 h-5 text-[#9333EA]" />
               <h3 className="text-purple-900">🏡 Endereço Residencial</h3>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="provinciaResidencial">Província *</Label>
-                <Select required>
+                <Select required value={provinciaResidencial} onValueChange={setProvinciaResidencial}>
                   <SelectTrigger id="provinciaResidencial" className="bg-[#F7F8FA] border-0">
                     <SelectValue placeholder="Selecione a província" />
                   </SelectTrigger>
@@ -335,6 +397,8 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
                   placeholder="Nome do município"
                   required
                   className="bg-[#F7F8FA] border-0"
+                  value={municipioResidencial}
+                  onChange={(e) => setMunicipioResidencial(e.target.value)}
                 />
               </div>
 
@@ -345,6 +409,8 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
                   placeholder="Nome do bairro"
                   required
                   className="bg-[#F7F8FA] border-0"
+                  value={bairroResidencial}
+                  onChange={(e) => setBairroResidencial(e.target.value)}
                 />
               </div>
 
@@ -355,6 +421,8 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
                   placeholder="Nome da rua"
                   required
                   className="bg-[#F7F8FA] border-0"
+                  value={ruaResidencial}
+                  onChange={(e) => setRuaResidencial(e.target.value)}
                 />
               </div>
 
@@ -365,6 +433,8 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
                   placeholder="Nº"
                   required
                   className="bg-[#F7F8FA] border-0"
+                  value={numeroResidencial}
+                  onChange={(e) => setNumeroResidencial(e.target.value)}
                 />
               </div>
 
@@ -374,6 +444,8 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
                   id="referenciaResidencial"
                   placeholder="Ex: Próximo ao mercado"
                   className="bg-[#F7F8FA] border-0"
+                  value={referenciaResidencial}
+                  onChange={(e) => setReferenciaResidencial(e.target.value)}
                 />
               </div>
             </div>
@@ -383,7 +455,7 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
           {showSpouseFields && (
             <>
               <Separator />
-              
+
               <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 border border-purple-200">
                 <div className="flex items-center gap-2 mb-4">
                   <Users className="w-5 h-5 text-[#9333EA]" />
@@ -444,13 +516,21 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
                     <Label>Status Eclesiástico do Cônjuge</Label>
                     <div className="flex gap-6">
                       <div className="flex items-center gap-2">
-                        <Checkbox id="obreiroConjuge" />
+                        <Checkbox
+                          id="obreiroConjuge"
+                          checked={obreiroConjuge}
+                          onCheckedChange={(checked: any) => setObreiroConjuge(!!checked)}
+                        />
                         <Label htmlFor="obreiroConjuge" className="cursor-pointer">
                           É Obreiro
                         </Label>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Checkbox id="batizadoConjuge" />
+                        <Checkbox
+                          id="batizadoConjuge"
+                          checked={batizadoConjuge}
+                          onCheckedChange={(checked: any) => setBatizadoConjuge(!!checked)}
+                        />
                         <Label htmlFor="batizadoConjuge" className="cursor-pointer">
                           É Batizado
                         </Label>
@@ -470,7 +550,7 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <div className="space-y-2">
                 <Label htmlFor="igreja">Igreja *</Label>
-                <Select required>
+                <Select required value={igreja} onValueChange={setIgreja}>
                   <SelectTrigger id="igreja" className="bg-[#F7F8FA] border-0">
                     <SelectValue placeholder="Selecione a igreja" />
                   </SelectTrigger>
@@ -486,7 +566,7 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
 
               <div className="space-y-2">
                 <Label htmlFor="regiao">Região *</Label>
-                <Select required>
+                <Select required value={regiao} onValueChange={setRegiao}>
                   <SelectTrigger id="regiao" className="bg-[#F7F8FA] border-0">
                     <SelectValue placeholder="Selecione a região" />
                   </SelectTrigger>
@@ -506,11 +586,11 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
               <MapPin className="w-5 h-5 text-[#9333EA]" />
               <h4 className="text-purple-900">⛪ Endereço da Igreja</h4>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="provinciaIgreja">Província *</Label>
-                <Select required>
+                <Select required value={provinciaIgreja} onValueChange={setProvinciaIgreja}>
                   <SelectTrigger id="provinciaIgreja" className="bg-[#F7F8FA] border-0">
                     <SelectValue placeholder="Selecione a província" />
                   </SelectTrigger>
@@ -544,6 +624,8 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
                   placeholder="Nome do município"
                   required
                   className="bg-[#F7F8FA] border-0"
+                  value={municipioIgreja}
+                  onChange={(e) => setMunicipioIgreja(e.target.value)}
                 />
               </div>
 
@@ -554,6 +636,8 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
                   placeholder="Nome do bairro"
                   required
                   className="bg-[#F7F8FA] border-0"
+                  value={bairroIgreja}
+                  onChange={(e) => setBairroIgreja(e.target.value)}
                 />
               </div>
 
@@ -564,6 +648,8 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
                   placeholder="Nome da rua"
                   required
                   className="bg-[#F7F8FA] border-0"
+                  value={ruaIgreja}
+                  onChange={(e) => setRuaIgreja(e.target.value)}
                 />
               </div>
 
@@ -574,6 +660,8 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
                   placeholder="Nº"
                   required
                   className="bg-[#F7F8FA] border-0"
+                  value={numeroIgreja}
+                  onChange={(e) => setNumeroIgreja(e.target.value)}
                 />
               </div>
 
@@ -583,6 +671,8 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
                   id="referenciaIgreja"
                   placeholder="Ex: Próximo à praça principal"
                   className="bg-[#F7F8FA] border-0"
+                  value={referenciaIgreja}
+                  onChange={(e) => setReferenciaIgreja(e.target.value)}
                 />
               </div>
             </div>
@@ -622,8 +712,8 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
             <Button type="button" variant="outline" onClick={handleClose} className="border-purple-200 text-purple-700 hover:bg-purple-50">
               Cancelar
             </Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="bg-gradient-to-r from-[#9333EA] to-[#A855F7] hover:from-[#7E22CE] hover:to-[#9333EA] shadow-md shadow-purple-200"
               disabled={!!nomeError || !!telefoneError || !!telefoneConjugeError}
             >

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { FilterBar } from "./components/FilterBar";
 import { AuxiliariesTable, type Auxiliary } from "./components/AuxiliariesTable";
 import { AuxiliaryDetailsModal } from "./components/AuxiliaryDetailsModal";
@@ -8,261 +8,265 @@ import { StatsCard } from "./components/StatsCard";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
 import { Toaster, toast } from "sonner";
-import { 
-  UserPlus, 
-  FileSpreadsheet, 
-  Database, 
-  Printer, 
-  Users, 
-  CheckCircle, 
+import {
+  UserPlus,
+  FileSpreadsheet,
+  Database,
+  Printer,
+  Users,
+  CheckCircle,
   Droplet,
   TrendingUp,
   Heart,
   Search
 } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
+import { criarAuxiliar, listarAuxiliares } from "./api/api";
+
+
+
 
 // Mock data
-const mockAuxiliaries: Auxiliary[] = [
-  {
-    id: "1",
-    foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Maria",
-    nome: "Maria Silva Santos",
-    igreja: "Igreja Central",
-    regiao: "Centro",
-    estadoCivil: "Solteiro(a)",
-    telefone: "+244 923 456 789",
-    obreiro: true,
-    batizado: true,
-    dataCadastro: "15/01/2024",
-    enderecoResidencial: {
-      provincia: "Luanda",
-      municipio: "Luanda",
-      bairro: "Maculusso",
-      rua: "Rua das Flores",
-      numeroCasa: "123",
-      pontoReferencia: "Próximo ao Mercado Central",
-    },
-    enderecoIgreja: {
-      provincia: "Luanda",
-      municipio: "Luanda",
-      bairro: "Maianga",
-      rua: "Av. 4 de Fevereiro",
-      numeroCasa: "1000",
-      pontoReferencia: "Em frente ao Banco BFA",
-    },
-  },
-  {
-    id: "2",
-    foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Joao",
-    nome: "João Pedro Oliveira",
-    igreja: "Igreja Nova Esperança",
-    regiao: "Norte",
-    estadoCivil: "Solteiro(a)",
-    telefone: "+244 945 678 901",
-    obreiro: false,
-    batizado: true,
-    dataCadastro: "20/01/2024",
-    enderecoResidencial: {
-      provincia: "Luanda",
-      municipio: "Viana",
-      bairro: "Zango",
-      rua: "Rua do Progresso",
-      numeroCasa: "456",
-      pontoReferencia: "Perto da Escola Primária",
-    },
-    enderecoIgreja: {
-      provincia: "Luanda",
-      municipio: "Viana",
-      bairro: "Zango II",
-      rua: "Av. Principal",
-      numeroCasa: "2500",
-      pontoReferencia: "Ao lado da Farmácia",
-    },
-  },
-  {
-    id: "3",
-    foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Ana",
-    nome: "Ana Paula Costa",
-    igreja: "Igreja Fé Viva",
-    regiao: "Sul",
-    estadoCivil: "Casado(a)",
-    telefone: "+244 912 345 678",
-    obreiro: true,
-    batizado: true,
-    dataCadastro: "22/01/2024",
-    enderecoResidencial: {
-      provincia: "Benguela",
-      municipio: "Benguela",
-      bairro: "Praia Morena",
-      rua: "Rua da Liberdade",
-      numeroCasa: "789",
-      pontoReferencia: "Próximo à Praia",
-    },
-    enderecoIgreja: {
-      provincia: "Benguela",
-      municipio: "Benguela",
-      bairro: "Centro",
-      rua: "Av. Norton de Matos",
-      numeroCasa: "1500",
-      pontoReferencia: "Em frente ao Hospital",
-    },
-    conjuge: {
-      nome: "Roberto Costa",
-      telefone: "+244 912 345 679",
-      foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Roberto",
-      obreiro: true,
-      batizado: true,
-    },
-  },
-  {
-    id: "4",
-    foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Carlos",
-    nome: "Carlos Eduardo Souza",
-    igreja: "Igreja Luz Divina",
-    regiao: "Leste",
-    estadoCivil: "Solteiro(a)",
-    telefone: "+244 934 567 890",
-    obreiro: false,
-    batizado: false,
-    dataCadastro: "25/01/2024",
-    enderecoResidencial: {
-      provincia: "Huíla",
-      municipio: "Lubango",
-      bairro: "Comercial",
-      rua: "Rua Sá da Bandeira",
-      numeroCasa: "321",
-      pontoReferencia: "Ao lado do Supermercado",
-    },
-    enderecoIgreja: {
-      provincia: "Huíla",
-      municipio: "Lubango",
-      bairro: "Lajes",
-      rua: "Rua Principal",
-      numeroCasa: "800",
-      pontoReferencia: "Próximo à Praça",
-    },
-  },
-  {
-    id: "5",
-    foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Beatriz",
-    nome: "Beatriz Fernandes Lima",
-    igreja: "Igreja Amor Perfeito",
-    regiao: "Oeste",
-    estadoCivil: "Divorciado(a)",
-    telefone: "+244 956 789 012",
-    obreiro: true,
-    batizado: true,
-    dataCadastro: "28/01/2024",
-    enderecoResidencial: {
-      provincia: "Huambo",
-      municipio: "Huambo",
-      bairro: "Benfica",
-      rua: "Av. da Independência",
-      numeroCasa: "654",
-      pontoReferencia: "Perto do Centro Comercial",
-    },
-    enderecoIgreja: {
-      provincia: "Huambo",
-      municipio: "Huambo",
-      bairro: "Centro",
-      rua: "Rua Dr. António Agostinho Neto",
-      numeroCasa: "1200",
-      pontoReferencia: "Ao lado da Câmara Municipal",
-    },
-  },
-  {
-    id: "6",
-    foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Pedro",
-    nome: "Pedro Henrique Almeida",
-    igreja: "Igreja Central",
-    regiao: "Centro",
-    estadoCivil: "Solteiro(a)",
-    telefone: "+244 967 890 123",
-    obreiro: false,
-    batizado: true,
-    dataCadastro: "01/02/2024",
-    enderecoResidencial: {
-      provincia: "Luanda",
-      municipio: "Luanda",
-      bairro: "Alvalade",
-      rua: "Rua Rainha Ginga",
-      numeroCasa: "987",
-      pontoReferencia: "Próximo ao Clube",
-    },
-    enderecoIgreja: {
-      provincia: "Luanda",
-      municipio: "Luanda",
-      bairro: "Maianga",
-      rua: "Av. 4 de Fevereiro",
-      numeroCasa: "1000",
-      pontoReferencia: "Em frente ao Banco BFA",
-    },
-  },
-  {
-    id: "7",
-    foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Julia",
-    nome: "Julia Cristina Rocha",
-    igreja: "Igreja Nova Esperança",
-    regiao: "Norte",
-    estadoCivil: "Casado(a)",
-    telefone: "+244 978 901 234",
-    obreiro: true,
-    batizado: true,
-    dataCadastro: "05/02/2024",
-    enderecoResidencial: {
-      provincia: "Cabinda",
-      municipio: "Cabinda",
-      bairro: "Marien Ngouabi",
-      rua: "Rua da Amizade",
-      numeroCasa: "555",
-      pontoReferencia: "Próximo ao Porto",
-    },
-    enderecoIgreja: {
-      provincia: "Cabinda",
-      municipio: "Cabinda",
-      bairro: "Centro",
-      rua: "Av. Principal",
-      numeroCasa: "2500",
-      pontoReferencia: "Ao lado da Biblioteca",
-    },
-    conjuge: {
-      nome: "Marcelo Rocha Silva",
-      telefone: "+244 978 901 235",
-      foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Marcelo",
-      obreiro: false,
-      batizado: true,
-    },
-  },
-  {
-    id: "8",
-    foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Lucas",
-    nome: "Lucas Vieira Martins",
-    igreja: "Igreja Fé Viva",
-    regiao: "Sul",
-    estadoCivil: "Solteiro(a)",
-    telefone: "+244 989 012 345",
-    obreiro: false,
-    batizado: false,
-    dataCadastro: "08/02/2024",
-    enderecoResidencial: {
-      provincia: "Namibe",
-      municipio: "Moçâmedes",
-      bairro: "Praia Amélia",
-      rua: "Rua do Mar",
-      numeroCasa: "2222",
-      pontoReferencia: "Próximo ao Farol",
-    },
-    enderecoIgreja: {
-      provincia: "Namibe",
-      municipio: "Moçâmedes",
-      bairro: "Centro",
-      rua: "Av. da República",
-      numeroCasa: "1500",
-      pontoReferencia: "Em frente à Delegação",
-    },
-  },
-];
+// const mockAuxiliaries: Auxiliary[] = [
+//   {
+//     id: "1",
+//     foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Maria",
+//     nome: "Maria Silva Santos",
+//     igreja: "Igreja Central",
+//     regiao: "Centro",
+//     estadoCivil: "Solteiro(a)",
+//     telefone: "+244 923 456 789",
+//     obreiro: true,
+//     batizado: true,
+//     dataCadastro: "15/01/2024",
+//     enderecoResidencial: {
+//       provincia: "Luanda",
+//       municipio: "Luanda",
+//       bairro: "Maculusso",
+//       rua: "Rua das Flores",
+//       numeroCasa: "123",
+//       pontoReferencia: "Próximo ao Mercado Central",
+//     },
+//     enderecoIgreja: {
+//       provincia: "Luanda",
+//       municipio: "Luanda",
+//       bairro: "Maianga",
+//       rua: "Av. 4 de Fevereiro",
+//       numeroCasa: "1000",
+//       pontoReferencia: "Em frente ao Banco BFA",
+//     },
+//   },
+//   {
+//     id: "2",
+//     foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Joao",
+//     nome: "João Pedro Oliveira",
+//     igreja: "Igreja Nova Esperança",
+//     regiao: "Norte",
+//     estadoCivil: "Solteiro(a)",
+//     telefone: "+244 945 678 901",
+//     obreiro: false,
+//     batizado: true,
+//     dataCadastro: "20/01/2024",
+//     enderecoResidencial: {
+//       provincia: "Luanda",
+//       municipio: "Viana",
+//       bairro: "Zango",
+//       rua: "Rua do Progresso",
+//       numeroCasa: "456",
+//       pontoReferencia: "Perto da Escola Primária",
+//     },
+//     enderecoIgreja: {
+//       provincia: "Luanda",
+//       municipio: "Viana",
+//       bairro: "Zango II",
+//       rua: "Av. Principal",
+//       numeroCasa: "2500",
+//       pontoReferencia: "Ao lado da Farmácia",
+//     },
+//   },
+//   {
+//     id: "3",
+//     foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Ana",
+//     nome: "Ana Paula Costa",
+//     igreja: "Igreja Fé Viva",
+//     regiao: "Sul",
+//     estadoCivil: "Casado(a)",
+//     telefone: "+244 912 345 678",
+//     obreiro: true,
+//     batizado: true,
+//     dataCadastro: "22/01/2024",
+//     enderecoResidencial: {
+//       provincia: "Benguela",
+//       municipio: "Benguela",
+//       bairro: "Praia Morena",
+//       rua: "Rua da Liberdade",
+//       numeroCasa: "789",
+//       pontoReferencia: "Próximo à Praia",
+//     },
+//     enderecoIgreja: {
+//       provincia: "Benguela",
+//       municipio: "Benguela",
+//       bairro: "Centro",
+//       rua: "Av. Norton de Matos",
+//       numeroCasa: "1500",
+//       pontoReferencia: "Em frente ao Hospital",
+//     },
+//     conjuge: {
+//       nome: "Roberto Costa",
+//       telefone: "+244 912 345 679",
+//       foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Roberto",
+//       obreiro: true,
+//       batizado: true,
+//     },
+//   },
+//   {
+//     id: "4",
+//     foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Carlos",
+//     nome: "Carlos Eduardo Souza",
+//     igreja: "Igreja Luz Divina",
+//     regiao: "Leste",
+//     estadoCivil: "Solteiro(a)",
+//     telefone: "+244 934 567 890",
+//     obreiro: false,
+//     batizado: false,
+//     dataCadastro: "25/01/2024",
+//     enderecoResidencial: {
+//       provincia: "Huíla",
+//       municipio: "Lubango",
+//       bairro: "Comercial",
+//       rua: "Rua Sá da Bandeira",
+//       numeroCasa: "321",
+//       pontoReferencia: "Ao lado do Supermercado",
+//     },
+//     enderecoIgreja: {
+//       provincia: "Huíla",
+//       municipio: "Lubango",
+//       bairro: "Lajes",
+//       rua: "Rua Principal",
+//       numeroCasa: "800",
+//       pontoReferencia: "Próximo à Praça",
+//     },
+//   },
+//   {
+//     id: "5",
+//     foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Beatriz",
+//     nome: "Beatriz Fernandes Lima",
+//     igreja: "Igreja Amor Perfeito",
+//     regiao: "Oeste",
+//     estadoCivil: "Divorciado(a)",
+//     telefone: "+244 956 789 012",
+//     obreiro: true,
+//     batizado: true,
+//     dataCadastro: "28/01/2024",
+//     enderecoResidencial: {
+//       provincia: "Huambo",
+//       municipio: "Huambo",
+//       bairro: "Benfica",
+//       rua: "Av. da Independência",
+//       numeroCasa: "654",
+//       pontoReferencia: "Perto do Centro Comercial",
+//     },
+//     enderecoIgreja: {
+//       provincia: "Huambo",
+//       municipio: "Huambo",
+//       bairro: "Centro",
+//       rua: "Rua Dr. António Agostinho Neto",
+//       numeroCasa: "1200",
+//       pontoReferencia: "Ao lado da Câmara Municipal",
+//     },
+//   },
+//   {
+//     id: "6",
+//     foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Pedro",
+//     nome: "Pedro Henrique Almeida",
+//     igreja: "Igreja Central",
+//     regiao: "Centro",
+//     estadoCivil: "Solteiro(a)",
+//     telefone: "+244 967 890 123",
+//     obreiro: false,
+//     batizado: true,
+//     dataCadastro: "01/02/2024",
+//     enderecoResidencial: {
+//       provincia: "Luanda",
+//       municipio: "Luanda",
+//       bairro: "Alvalade",
+//       rua: "Rua Rainha Ginga",
+//       numeroCasa: "987",
+//       pontoReferencia: "Próximo ao Clube",
+//     },
+//     enderecoIgreja: {
+//       provincia: "Luanda",
+//       municipio: "Luanda",
+//       bairro: "Maianga",
+//       rua: "Av. 4 de Fevereiro",
+//       numeroCasa: "1000",
+//       pontoReferencia: "Em frente ao Banco BFA",
+//     },
+//   },
+//   {
+//     id: "7",
+//     foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Julia",
+//     nome: "Julia Cristina Rocha",
+//     igreja: "Igreja Nova Esperança",
+//     regiao: "Norte",
+//     estadoCivil: "Casado(a)",
+//     telefone: "+244 978 901 234",
+//     obreiro: true,
+//     batizado: true,
+//     dataCadastro: "05/02/2024",
+//     enderecoResidencial: {
+//       provincia: "Cabinda",
+//       municipio: "Cabinda",
+//       bairro: "Marien Ngouabi",
+//       rua: "Rua da Amizade",
+//       numeroCasa: "555",
+//       pontoReferencia: "Próximo ao Porto",
+//     },
+//     enderecoIgreja: {
+//       provincia: "Cabinda",
+//       municipio: "Cabinda",
+//       bairro: "Centro",
+//       rua: "Av. Principal",
+//       numeroCasa: "2500",
+//       pontoReferencia: "Ao lado da Biblioteca",
+//     },
+//     conjuge: {
+//       nome: "Marcelo Rocha Silva",
+//       telefone: "+244 978 901 235",
+//       foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Marcelo",
+//       obreiro: false,
+//       batizado: true,
+//     },
+//   },
+//   {
+//     id: "8",
+//     foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Lucas",
+//     nome: "Lucas Vieira Martins",
+//     igreja: "Igreja Fé Viva",
+//     regiao: "Sul",
+//     estadoCivil: "Solteiro(a)",
+//     telefone: "+244 989 012 345",
+//     obreiro: false,
+//     batizado: false,
+//     dataCadastro: "08/02/2024",
+//     enderecoResidencial: {
+//       provincia: "Namibe",
+//       municipio: "Moçâmedes",
+//       bairro: "Praia Amélia",
+//       rua: "Rua do Mar",
+//       numeroCasa: "2222",
+//       pontoReferencia: "Próximo ao Farol",
+//     },
+//     enderecoIgreja: {
+//       provincia: "Namibe",
+//       municipio: "Moçâmedes",
+//       bairro: "Centro",
+//       rua: "Av. da República",
+//       numeroCasa: "1500",
+//       pontoReferencia: "Em frente à Delegação",
+//     },
+//   },
+// ];
 
 export default function App() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -277,10 +281,33 @@ export default function App() {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isNewAuxiliaryModalOpen, setIsNewAuxiliaryModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [auxiliares, setAuxiliares] = useState<Auxiliary[]>([]);
+
+  // const [filteredAuxiliaries, setFilteredAuxiliaries] = useState<Auxiliary[]>([]);
+
+
+  // useEffect(() => {
+  //   listarAuxiliares().then(setAuxiliares).catch(console.error);
+  //   console.log(auxiliares);
+  // }, []);
+
+    useEffect(() => {
+    listarAuxiliares()
+      .then((data) => {
+        console.log("Dados recebidos no App:", data);
+        setAuxiliares(data);
+        // calcularStats(data);
+      })
+      .catch((error) => {
+        console.error("Erro ao buscar auxiliares:", error);
+      });
+  }, []);
+
 
   // Filter and search logic
   const filteredAuxiliaries = useMemo(() => {
-    return mockAuxiliaries.filter((aux) => {
+    
+    return auxiliares.filter((aux) => {
       // Search filter
       if (searchTerm) {
         const searchLower = searchTerm.toLowerCase();
@@ -317,10 +344,20 @@ export default function App() {
       if (filters.apenasBatizados && !aux.batizado) {
         return false;
       }
-
+      
       return true;
     });
-  }, [searchTerm, filters]);
+  }, [auxiliares, searchTerm, filters]);
+
+  const handleSaveAuxiliar = async (novoAuxiliar: Auxiliary) => {
+    try{
+      const res = await criarAuxiliar(novoAuxiliar);
+      setAuxiliares((prev) => [...prev, res]);
+    }catch(error: any){
+      toast.error(`Erro ao salvar auxiliar: ${error.message}`);
+      console.error("Erro ao salvar auxiliar:", error);
+    }
+  }
 
   // Statistics
   const stats = useMemo(() => {
@@ -382,9 +419,10 @@ export default function App() {
   };
 
   return (
+    
     <div className="min-h-screen bg-gradient-to-br from-purple-50/50 via-pink-50/30 to-white">
       <Toaster position="top-right" richColors />
-      
+
       {/* Header */}
       <header className="bg-gradient-to-r from-white via-purple-50/30 to-pink-50/30 border-b border-purple-100 sticky top-0 z-10 backdrop-blur-sm">
         <div className="container mx-auto px-6 py-4">
@@ -554,7 +592,7 @@ export default function App() {
           <p className="text-sm text-purple-600 flex items-center gap-2">
             <Heart className="w-3 h-3 fill-purple-300 text-purple-300" />
             Mostrando <span className="font-medium text-purple-700">{filteredAuxiliaries.length}</span> de{" "}
-            <span className="font-medium text-purple-700">{mockAuxiliaries.length}</span> auxiliares
+            <span className="font-medium text-purple-700">{auxiliares.length}</span> auxiliares
           </p>
         </div>
 
@@ -577,16 +615,17 @@ export default function App() {
       <NewAuxiliaryModal
         open={isNewAuxiliaryModalOpen}
         onClose={() => setIsNewAuxiliaryModalOpen(false)}
-        existingAuxiliaries={mockAuxiliaries}
-        onSave={() => {
-          // In a real app, this would add the new auxiliary to the list
-        }}
+        existingAuxiliaries={auxiliares}
+        // onSave={() => {
+        //   // In a real app, this would add the new auxiliary to the list
+        // }}
+        onSave={handleSaveAuxiliar}
       />
 
       <EditAuxiliaryModal
         open={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
-        existingAuxiliaries={mockAuxiliaries}
+        existingAuxiliaries={auxiliares}
         auxiliary={selectedAuxiliary}
         onSave={() => {
           // In a real app, this would update the auxiliary in the list

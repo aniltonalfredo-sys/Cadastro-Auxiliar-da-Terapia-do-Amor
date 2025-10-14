@@ -30,7 +30,7 @@ export function FilterBar({ filters, onFilterChange, onClearFilters }: FilterBar
           <Label>Região</Label>
           <Select
             value={filters.regiao}
-            onValueChange={(value) => onFilterChange({ ...filters, regiao: value })}
+            onValueChange={(value: any) => onFilterChange({ ...filters, regiao: value })}
           >
             <SelectTrigger className="bg-purple-50/50 border border-purple-100">
               <SelectValue placeholder="Todas as regiões" />
@@ -51,7 +51,7 @@ export function FilterBar({ filters, onFilterChange, onClearFilters }: FilterBar
           <Label>Estado Civil</Label>
           <Select
             value={filters.estadoCivil}
-            onValueChange={(value) => onFilterChange({ ...filters, estadoCivil: value })}
+            onValueChange={(value: any) => onFilterChange({ ...filters, estadoCivil: value })}
           >
             <SelectTrigger className="bg-purple-50/50 border border-purple-100">
               <SelectValue placeholder="Todos" />
@@ -71,7 +71,7 @@ export function FilterBar({ filters, onFilterChange, onClearFilters }: FilterBar
           <Label>Igreja</Label>
           <Select
             value={filters.igreja}
-            onValueChange={(value) => onFilterChange({ ...filters, igreja: value })}
+            onValueChange={(value: any) => onFilterChange({ ...filters, igreja: value })}
           >
             <SelectTrigger className="bg-purple-50/50 border border-purple-100">
               <SelectValue placeholder="Todas as igrejas" />
@@ -95,7 +95,7 @@ export function FilterBar({ filters, onFilterChange, onClearFilters }: FilterBar
               <Checkbox
                 id="obreiros"
                 checked={filters.apenasObreiros}
-                onCheckedChange={(checked) =>
+                onCheckedChange={(checked: any) =>
                   onFilterChange({ ...filters, apenasObreiros: checked === true })
                 }
               />
@@ -107,7 +107,7 @@ export function FilterBar({ filters, onFilterChange, onClearFilters }: FilterBar
               <Checkbox
                 id="batizados"
                 checked={filters.apenasBatizados}
-                onCheckedChange={(checked) =>
+                onCheckedChange={(checked: any) =>
                   onFilterChange({ ...filters, apenasBatizados: checked === true })
                 }
               />
