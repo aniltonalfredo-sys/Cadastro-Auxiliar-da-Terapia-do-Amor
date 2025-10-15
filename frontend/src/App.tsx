@@ -21,252 +21,7 @@ import {
   Search
 } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
-import { criarAuxiliar, listarAuxiliares } from "./api/api";
-
-
-
-
-// Mock data
-// const mockAuxiliaries: Auxiliary[] = [
-//   {
-//     id: "1",
-//     foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Maria",
-//     nome: "Maria Silva Santos",
-//     igreja: "Igreja Central",
-//     regiao: "Centro",
-//     estadoCivil: "Solteiro(a)",
-//     telefone: "+244 923 456 789",
-//     obreiro: true,
-//     batizado: true,
-//     dataCadastro: "15/01/2024",
-//     enderecoResidencial: {
-//       provincia: "Luanda",
-//       municipio: "Luanda",
-//       bairro: "Maculusso",
-//       rua: "Rua das Flores",
-//       numeroCasa: "123",
-//       pontoReferencia: "Próximo ao Mercado Central",
-//     },
-//     enderecoIgreja: {
-//       provincia: "Luanda",
-//       municipio: "Luanda",
-//       bairro: "Maianga",
-//       rua: "Av. 4 de Fevereiro",
-//       numeroCasa: "1000",
-//       pontoReferencia: "Em frente ao Banco BFA",
-//     },
-//   },
-//   {
-//     id: "2",
-//     foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Joao",
-//     nome: "João Pedro Oliveira",
-//     igreja: "Igreja Nova Esperança",
-//     regiao: "Norte",
-//     estadoCivil: "Solteiro(a)",
-//     telefone: "+244 945 678 901",
-//     obreiro: false,
-//     batizado: true,
-//     dataCadastro: "20/01/2024",
-//     enderecoResidencial: {
-//       provincia: "Luanda",
-//       municipio: "Viana",
-//       bairro: "Zango",
-//       rua: "Rua do Progresso",
-//       numeroCasa: "456",
-//       pontoReferencia: "Perto da Escola Primária",
-//     },
-//     enderecoIgreja: {
-//       provincia: "Luanda",
-//       municipio: "Viana",
-//       bairro: "Zango II",
-//       rua: "Av. Principal",
-//       numeroCasa: "2500",
-//       pontoReferencia: "Ao lado da Farmácia",
-//     },
-//   },
-//   {
-//     id: "3",
-//     foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Ana",
-//     nome: "Ana Paula Costa",
-//     igreja: "Igreja Fé Viva",
-//     regiao: "Sul",
-//     estadoCivil: "Casado(a)",
-//     telefone: "+244 912 345 678",
-//     obreiro: true,
-//     batizado: true,
-//     dataCadastro: "22/01/2024",
-//     enderecoResidencial: {
-//       provincia: "Benguela",
-//       municipio: "Benguela",
-//       bairro: "Praia Morena",
-//       rua: "Rua da Liberdade",
-//       numeroCasa: "789",
-//       pontoReferencia: "Próximo à Praia",
-//     },
-//     enderecoIgreja: {
-//       provincia: "Benguela",
-//       municipio: "Benguela",
-//       bairro: "Centro",
-//       rua: "Av. Norton de Matos",
-//       numeroCasa: "1500",
-//       pontoReferencia: "Em frente ao Hospital",
-//     },
-//     conjuge: {
-//       nome: "Roberto Costa",
-//       telefone: "+244 912 345 679",
-//       foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Roberto",
-//       obreiro: true,
-//       batizado: true,
-//     },
-//   },
-//   {
-//     id: "4",
-//     foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Carlos",
-//     nome: "Carlos Eduardo Souza",
-//     igreja: "Igreja Luz Divina",
-//     regiao: "Leste",
-//     estadoCivil: "Solteiro(a)",
-//     telefone: "+244 934 567 890",
-//     obreiro: false,
-//     batizado: false,
-//     dataCadastro: "25/01/2024",
-//     enderecoResidencial: {
-//       provincia: "Huíla",
-//       municipio: "Lubango",
-//       bairro: "Comercial",
-//       rua: "Rua Sá da Bandeira",
-//       numeroCasa: "321",
-//       pontoReferencia: "Ao lado do Supermercado",
-//     },
-//     enderecoIgreja: {
-//       provincia: "Huíla",
-//       municipio: "Lubango",
-//       bairro: "Lajes",
-//       rua: "Rua Principal",
-//       numeroCasa: "800",
-//       pontoReferencia: "Próximo à Praça",
-//     },
-//   },
-//   {
-//     id: "5",
-//     foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Beatriz",
-//     nome: "Beatriz Fernandes Lima",
-//     igreja: "Igreja Amor Perfeito",
-//     regiao: "Oeste",
-//     estadoCivil: "Divorciado(a)",
-//     telefone: "+244 956 789 012",
-//     obreiro: true,
-//     batizado: true,
-//     dataCadastro: "28/01/2024",
-//     enderecoResidencial: {
-//       provincia: "Huambo",
-//       municipio: "Huambo",
-//       bairro: "Benfica",
-//       rua: "Av. da Independência",
-//       numeroCasa: "654",
-//       pontoReferencia: "Perto do Centro Comercial",
-//     },
-//     enderecoIgreja: {
-//       provincia: "Huambo",
-//       municipio: "Huambo",
-//       bairro: "Centro",
-//       rua: "Rua Dr. António Agostinho Neto",
-//       numeroCasa: "1200",
-//       pontoReferencia: "Ao lado da Câmara Municipal",
-//     },
-//   },
-//   {
-//     id: "6",
-//     foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Pedro",
-//     nome: "Pedro Henrique Almeida",
-//     igreja: "Igreja Central",
-//     regiao: "Centro",
-//     estadoCivil: "Solteiro(a)",
-//     telefone: "+244 967 890 123",
-//     obreiro: false,
-//     batizado: true,
-//     dataCadastro: "01/02/2024",
-//     enderecoResidencial: {
-//       provincia: "Luanda",
-//       municipio: "Luanda",
-//       bairro: "Alvalade",
-//       rua: "Rua Rainha Ginga",
-//       numeroCasa: "987",
-//       pontoReferencia: "Próximo ao Clube",
-//     },
-//     enderecoIgreja: {
-//       provincia: "Luanda",
-//       municipio: "Luanda",
-//       bairro: "Maianga",
-//       rua: "Av. 4 de Fevereiro",
-//       numeroCasa: "1000",
-//       pontoReferencia: "Em frente ao Banco BFA",
-//     },
-//   },
-//   {
-//     id: "7",
-//     foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Julia",
-//     nome: "Julia Cristina Rocha",
-//     igreja: "Igreja Nova Esperança",
-//     regiao: "Norte",
-//     estadoCivil: "Casado(a)",
-//     telefone: "+244 978 901 234",
-//     obreiro: true,
-//     batizado: true,
-//     dataCadastro: "05/02/2024",
-//     enderecoResidencial: {
-//       provincia: "Cabinda",
-//       municipio: "Cabinda",
-//       bairro: "Marien Ngouabi",
-//       rua: "Rua da Amizade",
-//       numeroCasa: "555",
-//       pontoReferencia: "Próximo ao Porto",
-//     },
-//     enderecoIgreja: {
-//       provincia: "Cabinda",
-//       municipio: "Cabinda",
-//       bairro: "Centro",
-//       rua: "Av. Principal",
-//       numeroCasa: "2500",
-//       pontoReferencia: "Ao lado da Biblioteca",
-//     },
-//     conjuge: {
-//       nome: "Marcelo Rocha Silva",
-//       telefone: "+244 978 901 235",
-//       foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Marcelo",
-//       obreiro: false,
-//       batizado: true,
-//     },
-//   },
-//   {
-//     id: "8",
-//     foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Lucas",
-//     nome: "Lucas Vieira Martins",
-//     igreja: "Igreja Fé Viva",
-//     regiao: "Sul",
-//     estadoCivil: "Solteiro(a)",
-//     telefone: "+244 989 012 345",
-//     obreiro: false,
-//     batizado: false,
-//     dataCadastro: "08/02/2024",
-//     enderecoResidencial: {
-//       provincia: "Namibe",
-//       municipio: "Moçâmedes",
-//       bairro: "Praia Amélia",
-//       rua: "Rua do Mar",
-//       numeroCasa: "2222",
-//       pontoReferencia: "Próximo ao Farol",
-//     },
-//     enderecoIgreja: {
-//       provincia: "Namibe",
-//       municipio: "Moçâmedes",
-//       bairro: "Centro",
-//       rua: "Av. da República",
-//       numeroCasa: "1500",
-//       pontoReferencia: "Em frente à Delegação",
-//     },
-//   },
-// ];
+import { actualizarAuxiliar, criarAuxiliar, listarAuxiliares } from "./api/api";
 
 export default function App() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -283,30 +38,20 @@ export default function App() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [auxiliares, setAuxiliares] = useState<Auxiliary[]>([]);
 
-  // const [filteredAuxiliaries, setFilteredAuxiliaries] = useState<Auxiliary[]>([]);
-
-
-  // useEffect(() => {
-  //   listarAuxiliares().then(setAuxiliares).catch(console.error);
-  //   console.log(auxiliares);
-  // }, []);
-
-    useEffect(() => {
+  useEffect(() => {
     listarAuxiliares()
       .then((data) => {
         console.log("Dados recebidos no App:", data);
         setAuxiliares(data);
-        // calcularStats(data);
       })
       .catch((error) => {
         console.error("Erro ao buscar auxiliares:", error);
+        toast.error("Erro ao carregar auxiliares");
       });
   }, []);
 
-
   // Filter and search logic
   const filteredAuxiliaries = useMemo(() => {
-    
     return auxiliares.filter((aux) => {
       // Search filter
       if (searchTerm) {
@@ -350,12 +95,30 @@ export default function App() {
   }, [auxiliares, searchTerm, filters]);
 
   const handleSaveAuxiliar = async (novoAuxiliar: Auxiliary) => {
-    try{
+    try {
       const res = await criarAuxiliar(novoAuxiliar);
       setAuxiliares((prev) => [...prev, res]);
-    }catch(error: any){
+      toast.success("Auxiliar criado com sucesso!");
+      setIsNewAuxiliaryModalOpen(false);
+    } catch(error: any) {
       toast.error(`Erro ao salvar auxiliar: ${error.message}`);
       console.error("Erro ao salvar auxiliar:", error);
+    }
+  }
+
+  const handleUpdateAuxiliar = async (updatedAux: Auxiliary) => {
+    try {
+      if (!updatedAux.id) {
+        throw new Error("ID do auxiliar não encontrado");
+      }
+      
+      const res = await actualizarAuxiliar(updatedAux.id, updatedAux);
+      setAuxiliares((prev) => prev.map((aux) => aux.id === updatedAux.id ? res : aux));
+      toast.success("Auxiliar atualizado com sucesso!");
+      setIsEditModalOpen(false);
+    } catch(error: any) {
+      toast.error(`Erro ao atualizar auxiliar: ${error.message}`);
+      console.error("Erro ao atualizar auxiliar:", error);
     }
   }
 
@@ -388,6 +151,7 @@ export default function App() {
       apenasObreiros: false,
       apenasBatizados: false,
     });
+    setSearchTerm("");
     toast.success("Filtros limpos com sucesso!");
   };
 
@@ -419,7 +183,6 @@ export default function App() {
   };
 
   return (
-    
     <div className="min-h-screen bg-gradient-to-br from-purple-50/50 via-pink-50/30 to-white">
       <Toaster position="top-right" richColors />
 
@@ -433,7 +196,9 @@ export default function App() {
                 <Heart className="w-7 h-7 text-white" fill="white" />
               </div>
               <div>
-                <h2 className="bg-gradient-to-r from-[#9333EA] to-[#C084FC] bg-clip-text text-transparent">Terapia do Amor</h2>
+                <h2 className="bg-gradient-to-r from-[#9333EA] to-[#C084FC] bg-clip-text text-transparent text-xl font-bold">
+                  Terapia do Amor
+                </h2>
                 <p className="text-xs text-purple-400">💕 Painel de Auxiliares</p>
               </div>
             </div>
@@ -461,7 +226,7 @@ export default function App() {
         <div className="mb-8 relative">
           <div className="absolute -top-4 -left-4 text-6xl opacity-10">💕</div>
           <div className="absolute -top-2 right-20 text-4xl opacity-10">💜</div>
-          <h1 className="bg-gradient-to-r from-[#9333EA] to-[#C084FC] bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-[#9333EA] to-[#C084FC] bg-clip-text text-transparent mb-2">
             Auxiliares Cadastrados
           </h1>
           <p className="text-purple-600 flex items-center gap-2">
@@ -502,67 +267,71 @@ export default function App() {
           />
         </div>
 
-        {/* Charts */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <div className="bg-white/80 backdrop-blur rounded-2xl border border-purple-100 p-6 shadow-sm shadow-purple-100">
-            <h3 className="mb-4 text-purple-900 flex items-center gap-2">
-              <Heart className="w-5 h-5 text-purple-400 fill-purple-200" />
-              Distribuição de Obreiros
-            </h3>
-            <ResponsiveContainer width="100%" height={200}>
-              <PieChart>
-                <Pie
-                  data={chartData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
-                  paddingAngle={5}
-                  dataKey="value"
-                >
-                  {chartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
+        {/* Charts - Descomente se quiser usar */}
+        {/* {stats.total > 0 && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div className="bg-white/80 backdrop-blur rounded-2xl border border-purple-100 p-6 shadow-sm shadow-purple-100">
+              <h3 className="mb-4 text-purple-900 flex items-center gap-2">
+                <Heart className="w-5 h-5 text-purple-400 fill-purple-200" />
+                Distribuição de Obreiros
+              </h3>
+              <ResponsiveContainer width="100%" height={200}>
+                <PieChart>
+                  <Pie
+                    data={chartData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {chartData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
 
-          <div className="bg-white/80 backdrop-blur rounded-2xl border border-purple-100 p-6 shadow-sm shadow-purple-100">
-            <h3 className="mb-4 text-purple-900 flex items-center gap-2">
-              <Heart className="w-5 h-5 text-purple-400 fill-purple-200" />
-              Distribuição de Batizados
-            </h3>
-            <ResponsiveContainer width="100%" height={200}>
-              <PieChart>
-                <Pie
-                  data={chartData2}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
-                  paddingAngle={5}
-                  dataKey="value"
-                >
-                  {chartData2.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
+            <div className="bg-white/80 backdrop-blur rounded-2xl border border-purple-100 p-6 shadow-sm shadow-purple-100">
+              <h3 className="mb-4 text-purple-900 flex items-center gap-2">
+                <Heart className="w-5 h-5 text-purple-400 fill-purple-200" />
+                Distribuição de Batizados
+              </h3>
+              <ResponsiveContainer width="100%" height={200}>
+                <PieChart>
+                  <Pie
+                    data={chartData2}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {chartData2.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
           </div>
-        </div>
+        )} */}
 
-        {/* Filters */}
-        <FilterBar
-          filters={filters}
-          onFilterChange={setFilters}
-          onClearFilters={handleClearFilters}
-        />
+        {/* Filters - Descomente se quiser usar */}
+        {/* {auxiliares.length > 0 && (
+          <FilterBar
+            filters={filters}
+            onFilterChange={setFilters}
+            onClearFilters={handleClearFilters}
+          />
+        )} */}
 
         {/* Action Buttons */}
         <div className="flex flex-wrap gap-3 mb-6">
@@ -573,21 +342,48 @@ export default function App() {
             <UserPlus className="w-4 h-4 mr-2" />
             Novo Auxiliar
           </Button>
-          <Button variant="outline" onClick={handleExportExcel} className="border-purple-200 text-purple-700 hover:bg-purple-50 hover:border-purple-300">
-            <FileSpreadsheet className="w-4 h-4 mr-2" />
-            Exportar para Excel
-          </Button>
-          <Button variant="outline" onClick={handleExportSQL} className="border-purple-200 text-purple-700 hover:bg-purple-50 hover:border-purple-300">
-            <Database className="w-4 h-4 mr-2" />
-            Exportar para SQL
-          </Button>
-          <Button variant="outline" onClick={handlePrint} className="border-purple-200 text-purple-700 hover:bg-purple-50 hover:border-purple-300">
-            <Printer className="w-4 h-4 mr-2" />
-            Imprimir Lista
-          </Button>
+          
+          {/* {filteredAuxiliaries.length > 0 && (
+            <>
+              <Button 
+                variant="outline" 
+                onClick={handleExportExcel} 
+                className="border-purple-200 text-purple-700 hover:bg-purple-50 hover:border-purple-300"
+              >
+                <FileSpreadsheet className="w-4 h-4 mr-2" />
+                Exportar para Excel
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={handleExportSQL} 
+                className="border-purple-200 text-purple-700 hover:bg-purple-50 hover:border-purple-300"
+              >
+                <Database className="w-4 h-4 mr-2" />
+                Exportar para SQL
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={handlePrint} 
+                className="border-purple-200 text-purple-700 hover:bg-purple-50 hover:border-purple-300"
+              >
+                <Printer className="w-4 h-4 mr-2" />
+                Imprimir Lista
+              </Button>
+            </>
+          )} */}
+          
+          {(searchTerm || filters.regiao !== "todas" || filters.estadoCivil !== "todos" || filters.igreja !== "todas" || filters.apenasObreiros || filters.apenasBatizados) && (
+            <Button 
+              variant="outline" 
+              onClick={handleClearFilters}
+              className="border-red-200 text-red-700 hover:bg-red-50 hover:border-red-300"
+            >
+              Limpar Filtros
+            </Button>
+          )}
         </div>
 
-        {/* Table */}
+        {/* Table Info */}
         <div className="mb-4">
           <p className="text-sm text-purple-600 flex items-center gap-2">
             <Heart className="w-3 h-3 fill-purple-300 text-purple-300" />
@@ -596,12 +392,36 @@ export default function App() {
           </p>
         </div>
 
-        <AuxiliariesTable
-          auxiliaries={filteredAuxiliaries}
-          onView={handleView}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-        />
+        {/* Table */}
+        {filteredAuxiliaries.length > 0 ? (
+          <AuxiliariesTable
+            auxiliaries={filteredAuxiliaries}
+            onView={handleView}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
+        ) : (
+          <div className="text-center py-12 bg-white/50 rounded-2xl border border-purple-100">
+            <Heart className="w-12 h-12 text-purple-300 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-purple-900 mb-2">
+              Nenhum auxiliar encontrado
+            </h3>
+            <p className="text-purple-600 mb-4">
+              {auxiliares.length === 0 
+                ? "Comece cadastrando o primeiro auxiliar."
+                : "Tente ajustar os filtros ou termos de pesquisa."}
+            </p>
+            {auxiliares.length === 0 && (
+              <Button
+                className="bg-gradient-to-r from-[#9333EA] to-[#A855F7] hover:from-[#7E22CE] hover:to-[#9333EA]"
+                onClick={() => setIsNewAuxiliaryModalOpen(true)}
+              >
+                <UserPlus className="w-4 h-4 mr-2" />
+                Cadastrar Primeiro Auxiliar
+              </Button>
+            )}
+          </div>
+        )}
       </main>
 
       {/* Modals */}
@@ -616,9 +436,6 @@ export default function App() {
         open={isNewAuxiliaryModalOpen}
         onClose={() => setIsNewAuxiliaryModalOpen(false)}
         existingAuxiliaries={auxiliares}
-        // onSave={() => {
-        //   // In a real app, this would add the new auxiliary to the list
-        // }}
         onSave={handleSaveAuxiliar}
       />
 
@@ -627,9 +444,7 @@ export default function App() {
         onClose={() => setIsEditModalOpen(false)}
         existingAuxiliaries={auxiliares}
         auxiliary={selectedAuxiliary}
-        onSave={() => {
-          // In a real app, this would update the auxiliary in the list
-        }}
+        onSave={handleUpdateAuxiliar}
       />
     </div>
   );

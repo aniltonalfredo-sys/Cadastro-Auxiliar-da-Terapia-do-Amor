@@ -19,7 +19,7 @@ interface NewAuxiliaryModalProps {
   existingAuxiliaries: Auxiliary[];
 }
 
-export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }: NewAuxiliaryModalProps) {
+export function NewAuxiliaryModalX({ open, onClose, onSave, existingAuxiliaries }: NewAuxiliaryModalProps) {
   const [estadoCivil, setEstadoCivil] = useState<string>("");
   const [foto, setFoto] = useState<string>("");
   const [fotoConjuge, setFotoConjuge] = useState<string>("");
@@ -27,8 +27,8 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
   // Form fields for validation
   const [nome, setNome] = useState<string>("");
   const [telefone, setTelefone] = useState<string>("");
-  const [nomeConjuge, setNomeConjuge] = useState<string>("");
   const [telefoneConjuge, setTelefoneConjuge] = useState<string>("");
+  const [nomeConjuge, setNomeConjuge] = useState<string>("");
 
   // Validation states
   const [nomeError, setNomeError] = useState<string>("");
@@ -58,19 +58,17 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
   const [batizado, setBatizado] = useState<boolean>(false);
   const [obreiroConjuge, setObreiroConjuge] = useState<boolean>(false);
   const [batizadoConjuge, setBatizadoConjuge] = useState<boolean>(false);
-
-
+  
+  // New fields
   const [dataNascimento, setDataNascimento] = useState<string>("");
   const [dataUniao, setDataUniao] = useState<string>("");
   const [tempoRelacionamento, setTempoRelacionamento] = useState<string>("");
 
- // Loading state
+  // Loading state
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-
 
   // Real-time validation for name
   useEffect(() => {
-
     if (nome.trim().length === 0) {
       setNomeError("");
       return;
@@ -112,7 +110,6 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
     }
   }, [telefone, existingAuxiliaries]);
 
-
   // Real-time validation for spouse phone
   useEffect(() => {
     if (telefoneConjuge.trim().length === 0) {
@@ -130,7 +127,7 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
     // Check against all auxiliaries
     const isDuplicate = existingAuxiliaries.some((aux) => {
       const auxPhone = aux.telefone.replace(/\D/g, "");
-      const spousePhone = aux.conjuge?.telefone.replace(/\D/g, "");
+      const spousePhone = aux.conjuge?.telefone?.replace(/\D/g, "") || "";
       return auxPhone === cleanPhone || spousePhone === cleanPhone;
     });
 
@@ -146,19 +143,58 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
     }
   }, [telefoneConjuge, telefone, existingAuxiliaries]);
 
+  // Improved Angolan phone validation
+  const isValidAngolanPhone = (phone: string): boolean => {
+    const cleanPhone = phone.replace(/\D/g, '');
+    return cleanPhone.length === 12 && cleanPhone.startsWith('244');
+  };
+
+  // Comprehensive form validation
+  const isFormValid = (): boolean => {
+    // Basic validations
+    if (!foto) return false;
+    if (!nome.trim()) return false;
+    if (!telefone.trim()) return false;
+    
+    // Error validations
+    if (nomeError || telefoneError || telefoneConjugeError) return false;
+    
+    // Spouse validations
+    if (showSpouseFields) {
+      if (!fotoConjuge) return false;
+      if (!nomeConjuge.trim()) return false;
+      if (!telefoneConjuge.trim()) return false;
+    }
+    
+    // Phone format validation
+    if (!isValidAngolanPhone(telefone)) return false;
+    if (showSpouseFields && telefoneConjuge && !isValidAngolanPhone(telefoneConjuge)) return false;
+    
+    return true;
+  };
 
   const handleEstadoCivilChange = (value: string) => {
     setEstadoCivil(value);
     if (value === "solteiro") {
       setFotoConjuge("");
       setTelefoneConjuge("");
+      setNomeConjuge("");
+      setEmailConjuge("");
+      setObreiroConjuge(false);
+      setBatizadoConjuge(false);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-
-
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!isFormValid()) {
+      toast.error("Por favor, preencha todos os campos obrigatórios corretamente.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    
     try {
       // Validate main photo
       if (!foto) {
@@ -167,12 +203,7 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
       }
 
       // Check for validation errors
-      if (nomeError) {
-        toast.error("Corrija os erros no formulário antes de continuar.");
-        return;
-      }
-
-      if (telefoneError) {
+      if (nomeError || telefoneError) {
         toast.error("Corrija os erros no formulário antes de continuar.");
         return;
       }
@@ -188,9 +219,9 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
         return;
       }
 
-      const novoAuxiliar = {
+      const novoAuxiliar: Auxiliary = {
         id: crypto.randomUUID(),
-        nome,
+        nome: nome.trim(),
         telefone,
         email: email.trim(),
         igreja,
@@ -219,14 +250,16 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
         },
         conjuge: showSpouseFields
           ? {
-            nome: nomeConjuge,
-            telefone: telefoneConjuge,
-            foto: fotoConjuge,
-            obreiro: obreiroConjuge,
-            batizado: batizadoConjuge,
-          }
+              nome: nomeConjuge.trim(),
+              telefone: telefoneConjuge,
+              // email: emailConjuge.trim(),
+              foto: fotoConjuge,
+              obreiro: obreiroConjuge,
+              batizado: batizadoConjuge,
+            }
           : undefined,
-      }
+      };
+
       onSave(novoAuxiliar);
       handleClose();
       toast.success("Auxiliar cadastrado com sucesso!");
@@ -234,11 +267,12 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
     } catch (error: any) {
       toast.error(`Erro ao salvar auxiliar: ${error.message}`);
     } finally {
-      // actualizar a lista de auxiliar apos sucesso
+      setIsSubmitting(false);
     }
-  }
+  };
 
-   const resetForm = () => {
+  const resetForm = () => {
+    // Reset all form fields
     setEstadoCivil("");
     setFoto("");
     setFotoConjuge("");
@@ -762,7 +796,7 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
                       className="bg-[#F7F8FA] border-0"
                       value={tempoRelacionamento}
                       onChange={(e) => setTempoRelacionamento(e.target.value)}
-                     />
+                    />
                   </div>
                 </div>
               </div>
@@ -772,20 +806,20 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
           {/* Action Buttons */}
           <div className="flex justify-end gap-2 pt-4 border-t border-purple-100">
             <Button 
-            type="button" 
-            variant="outline" 
-            onClick={handleClose} 
-            className="border-purple-200 text-purple-700 hover:bg-purple-50">
+              type="button" 
+              variant="outline" 
+              onClick={handleClose} 
+              className="border-purple-200 text-purple-700 hover:bg-purple-50"
+              disabled={isSubmitting}
+            >
               Cancelar
             </Button>
             <Button
               type="submit"
               className="bg-gradient-to-r from-[#9333EA] to-[#A855F7] hover:from-[#7E22CE] hover:to-[#9333EA] shadow-md shadow-purple-200"
-              
-              disabled={!!nomeError || !!telefoneError || !!telefoneConjugeError}
-              
+              disabled={!isFormValid() || isSubmitting}
             >
-              💕 Cadastrar Auxiliar
+              {isSubmitting ? "📝 Cadastrando..." : "💕 Cadastrar Auxiliar"}
             </Button>
           </div>
         </form>

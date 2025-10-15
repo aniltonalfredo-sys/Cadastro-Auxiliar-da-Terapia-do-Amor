@@ -15,9 +15,11 @@ export interface Auxiliary {
   id: string;
   foto: string;
   nome: string;
+  email: string;
   igreja: string;
   regiao: string;
   estadoCivil: string;
+  dataNascimento: string;
   telefone: string;
   obreiro: boolean;
   batizado: boolean;

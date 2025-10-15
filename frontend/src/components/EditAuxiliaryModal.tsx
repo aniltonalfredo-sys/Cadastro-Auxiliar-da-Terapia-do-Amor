@@ -27,7 +27,7 @@ import type { Auxiliary } from "./AuxiliariesTable";
 interface EditAuxiliaryModalProps {
   open: boolean;
   onClose: () => void;
-  onSave: (updatedAux: Auxiliary) => void; // ✅ agora aceita o auxiliar atualizado
+  onSave: (updatedAux: Auxiliary) => void;
   existingAuxiliaries: Auxiliary[];
   auxiliary: Auxiliary | null;
 }
@@ -39,12 +39,15 @@ export function EditAuxiliaryModal({
   existingAuxiliaries,
   auxiliary,
 }: EditAuxiliaryModalProps) {
+  // Estados principais
   const [nome, setNome] = useState("");
   const [telefone, setTelefone] = useState("");
   const [estadoCivil, setEstadoCivil] = useState("");
   const [foto, setFoto] = useState("");
   const [obreiro, setObreiro] = useState(false);
   const [batizado, setBatizado] = useState(false);
+  const [email, setEmail] = useState("");
+  const [dataNascimento, setDataNascimento] = useState("");
 
   // Conjuge
   const [fotoConjuge, setFotoConjuge] = useState("");
@@ -53,6 +56,27 @@ export function EditAuxiliaryModal({
   const [obreiroConjuge, setObreiroConjuge] = useState(false);
   const [batizadoConjuge, setBatizadoConjuge] = useState(false);
 
+  // Endereços
+  const [enderecoResidencial, setEnderecoResidencial] = useState({
+    provincia: "",
+    municipio: "",
+    bairro: "",
+    rua: "",
+    numeroCasa: "",
+    pontoReferencia: ""
+  });
+
+  const [igreja, setIgreja] = useState("");
+  const [regiao, setRegiao] = useState("");
+  const [enderecoIgreja, setEnderecoIgreja] = useState({
+    provincia: "",
+    municipio: "",
+    bairro: "",
+    rua: "",
+    numeroCasa: "",
+    pontoReferencia: ""
+  });
+
   // Erros
   const [nomeError, setNomeError] = useState("");
   const [telefoneError, setTelefoneError] = useState("");
@@ -60,34 +84,71 @@ export function EditAuxiliaryModal({
 
   const showSpouseFields = estadoCivil !== "" && estadoCivil !== "solteiro";
 
-  // 🧩 Carregar dados do auxiliar selecionado
+  // 🧩 Carregar dados do auxiliar selecionado - CORRIGIDO
   useEffect(() => {
     if (auxiliary && open) {
-      setNome(auxiliary.nome);
-      setTelefone(auxiliary.telefone);
-      setFoto(auxiliary.foto);
-      setEstadoCivil(
-        auxiliary.estadoCivil === "Solteiro(a)"
-          ? "solteiro"
-          : auxiliary.estadoCivil === "Casado(a)"
-          ? "casado"
-          : auxiliary.estadoCivil === "União Estável"
-          ? "uniao-estavel"
-          : auxiliary.estadoCivil === "Divorciado(a)"
-          ? "divorciado"
-          : auxiliary.estadoCivil === "Viúvo(a)"
-          ? "viuvo"
-          : ""
-      );
-      setObreiro(auxiliary.obreiro);
-      setBatizado(auxiliary.batizado);
+      console.log("Dados do auxiliar para edição:", auxiliary);
+      
+      // Dados básicos
+      setNome(auxiliary.nome || "");
+      setTelefone(auxiliary.telefone || "");
+      setFoto(auxiliary.foto || "");
+      setEmail(auxiliary.email || "");
+      setDataNascimento(auxiliary.dataNascimento || "");
+      
+      // Estado Civil - mapeamento correto
+      const estadoCivilMap: { [key: string]: string } = {
+        "Solteiro(a)": "solteiro",
+        "Casado(a)": "casado",
+        "União Estável": "uniao-estavel",
+        "Divorciado(a)": "divorciado",
+        "Viúvo(a)": "viuvo"
+      };
+      
+      const estadoCivilValue = estadoCivilMap[auxiliary.estadoCivil] || "";
+      setEstadoCivil(estadoCivilValue);
+      
+      // Informações eclesiásticas
+      setObreiro(auxiliary.obreiro || false);
+      setBatizado(auxiliary.batizado || false);
+      setIgreja(auxiliary.igreja || "");
+      setRegiao(auxiliary.regiao || "");
 
+      // Endereço residencial
+      setEnderecoResidencial({
+        provincia: auxiliary.enderecoResidencial?.provincia || "",
+        municipio: auxiliary.enderecoResidencial?.municipio || "",
+        bairro: auxiliary.enderecoResidencial?.bairro || "",
+        rua: auxiliary.enderecoResidencial?.rua || "",
+        numeroCasa: auxiliary.enderecoResidencial?.numeroCasa || "",
+        pontoReferencia: auxiliary.enderecoResidencial?.pontoReferencia || ""
+      });
+
+      // Endereço da igreja
+      setEnderecoIgreja({
+        provincia: auxiliary.enderecoIgreja?.provincia || "",
+        municipio: auxiliary.enderecoIgreja?.municipio || "",
+        bairro: auxiliary.enderecoIgreja?.bairro || "",
+        rua: auxiliary.enderecoIgreja?.rua || "",
+        numeroCasa: auxiliary.enderecoIgreja?.numeroCasa || "",
+        pontoReferencia: auxiliary.enderecoIgreja?.pontoReferencia || ""
+      });
+
+      // Dados do cônjuge
       if (auxiliary.conjuge) {
+        console.log("Dados do cônjuge:", auxiliary.conjuge);
         setNomeConjuge(auxiliary.conjuge.nome || "");
         setTelefoneConjuge(auxiliary.conjuge.telefone || "");
         setFotoConjuge(auxiliary.conjuge.foto || "");
         setObreiroConjuge(auxiliary.conjuge.obreiro || false);
         setBatizadoConjuge(auxiliary.conjuge.batizado || false);
+      } else {
+        // Reset dos campos do cônjuge se não existir
+        setNomeConjuge("");
+        setTelefoneConjuge("");
+        setFotoConjuge("");
+        setObreiroConjuge(false);
+        setBatizadoConjuge(false);
       }
     }
   }, [auxiliary, open]);
@@ -132,22 +193,59 @@ export function EditAuxiliaryModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!foto) return toast.error("Por favor, carregue a foto do auxiliar.");
-    if (nomeError || telefoneError || telefoneConjugeError)
-      return toast.error("Corrija os erros no formulário antes de continuar.");
+    // Validações básicas
+    if (!foto) {
+      toast.error("Por favor, carregue a foto do auxiliar.");
+      return;
+    }
+
+    if (!nome.trim()) {
+      toast.error("Nome é obrigatório");
+      return;
+    }
+
+    if (!telefone.trim()) {
+      toast.error("Telefone é obrigatório");
+      return;
+    }
+
+    if (!estadoCivil) {
+      toast.error("Estado civil é obrigatório");
+      return;
+    }
+
+    if (nomeError || telefoneError || telefoneConjugeError) {
+      toast.error("Corrija os erros no formulário antes de continuar.");
+      return;
+    }
+
+    // Mapear estado civil de volta para o formato original
+    const estadoCivilMap: { [key: string]: string } = {
+      "solteiro": "Solteiro(a)",
+      "casado": "Casado(a)",
+      "uniao-estavel": "União Estável",
+      "divorciado": "Divorciado(a)",
+      "viuvo": "Viúvo(a)"
+    };
 
     const updatedAuxiliary: Auxiliary = {
       ...auxiliary!,
-      nome,
+      nome: nome.trim(),
       telefone,
-      estadoCivil,
+      email: email.trim(),
+      dataNascimento,
+      estadoCivil: estadoCivilMap[estadoCivil] || estadoCivil,
       foto,
       obreiro,
       batizado,
+      enderecoResidencial,
+      igreja,
+      regiao,
+      enderecoIgreja,
       conjuge: showSpouseFields
         ? {
             ...auxiliary?.conjuge,
-            nome: nomeConjuge,
+            nome: nomeConjuge.trim(),
             telefone: telefoneConjuge,
             foto: fotoConjuge,
             obreiro: obreiroConjuge,
@@ -156,14 +254,50 @@ export function EditAuxiliaryModal({
         : undefined,
     };
 
+    console.log("Dados enviados para atualização:", updatedAuxiliary);
     onSave(updatedAuxiliary);
     toast.success("Auxiliar atualizado com sucesso!");
     handleClose();
   };
 
   const handleClose = () => {
+    // Resetar todos os estados
+    setNome("");
+    setTelefone("");
+    setEstadoCivil("");
+    setFoto("");
+    setObreiro(false);
+    setBatizado(false);
+    setEmail("");
+    setDataNascimento("");
+    setEnderecoResidencial({
+      provincia: "",
+      municipio: "",
+      bairro: "",
+      rua: "",
+      numeroCasa: "",
+      pontoReferencia: ""
+    });
+    setIgreja("");
+    setRegiao("");
+    setEnderecoIgreja({
+      provincia: "",
+      municipio: "",
+      bairro: "",
+      rua: "",
+      numeroCasa: "",
+      pontoReferencia: ""
+    });
+    setFotoConjuge("");
+    setNomeConjuge("");
+    setTelefoneConjuge("");
+    setObreiroConjuge(false);
+    setBatizadoConjuge(false);
+    setNomeError("");
+    setTelefoneError("");
+    setTelefoneConjugeError("");
+    
     onClose();
-    // opcional: reset de estados
   };
 
   if (!auxiliary) return null;
@@ -174,7 +308,7 @@ export function EditAuxiliaryModal({
         <DialogHeader>
           <DialogTitle className="text-purple-900 flex items-center gap-2">
             <Heart className="w-5 h-5 text-purple-400 fill-purple-200" />
-            Editar Auxiliar
+            Editar Auxiliar: {auxiliary.nome}
           </DialogTitle>
           <DialogDescription className="text-purple-600">
             💕 Atualize os dados do auxiliar no sistema.
@@ -205,7 +339,7 @@ export function EditAuxiliaryModal({
                   required
                   value={nome}
                   onChange={(e) => setNome(e.target.value)}
-                  className={`bg-purple-50/50 border border-purple-100 ${nomeError ? "border-2 border-red-500" : ""}`}
+                  className={`bg-[#F7F8FA] border-0 ${nomeError ? "border-2 border-red-500" : ""}`}
                 />
                 {nomeError && (
                   <div className="flex items-center gap-2 text-red-600 text-sm">
@@ -222,7 +356,7 @@ export function EditAuxiliaryModal({
                   required
                   value={telefone}
                   onChange={(e) => setTelefone(e.target.value)}
-                  className={`bg-purple-50/50 border border-purple-100 ${telefoneError ? "border-2 border-red-500" : ""}`}
+                  className={`bg-[#F7F8FA] border-0 ${telefoneError ? "border-2 border-red-500" : ""}`}
                 />
                 {telefoneError && (
                   <div className="flex items-center gap-2 text-red-600 text-sm">
@@ -238,15 +372,16 @@ export function EditAuxiliaryModal({
                   id="email"
                   type="email"
                   placeholder="email@exemplo.com"
-                  defaultValue={auxiliary.nome.toLowerCase().replace(/\s+/g, ".")}
-                  className="bg-purple-50/50 border border-purple-100"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="bg-[#F7F8FA] border-0"
                 />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="estadoCivil">Estado Civil *</Label>
-                <Select required value={estadoCivil}>
-                  <SelectTrigger id="estadoCivil" className="bg-purple-50/50 border border-purple-100">
+                <Select required value={estadoCivil} onValueChange={setEstadoCivil}>
+                  <SelectTrigger id="estadoCivil" className="bg-[#F7F8FA] border-0">
                     <SelectValue placeholder="Selecione" />
                   </SelectTrigger>
                   <SelectContent>
@@ -264,21 +399,31 @@ export function EditAuxiliaryModal({
                 <Input
                   id="dataNascimento"
                   type="date"
-                  className="bg-purple-50/50 border border-purple-100"
+                  value={dataNascimento}
+                  onChange={(e) => setDataNascimento(e.target.value)}
+                  className="bg-[#F7F8FA] border-0"
                 />
               </div>
 
               <div className="space-y-3 md:col-span-2">
-                <Label>Informações Eclesiástico</Label>
+                <Label>Informações Eclesiásticas</Label>
                 <div className="flex gap-6">
                   <div className="flex items-center gap-2">
-                    <Checkbox id="obreiro" defaultValue={auxiliary.obreiro}  />
+                    <Checkbox 
+                      id="obreiro" 
+                      checked={obreiro} 
+                      onCheckedChange={(checked: any) => setObreiro(checked === true)} 
+                    />
                     <Label htmlFor="obreiro" className="cursor-pointer">
                       É Obreiro
                     </Label>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Checkbox id="batizado" defaultValue={auxiliary.batizado} />
+                    <Checkbox 
+                      id="batizado" 
+                      checked={batizado} 
+                      onCheckedChange={(checked: any) => setBatizado(checked === true)} 
+                    />
                     <Label htmlFor="batizado" className="cursor-pointer">
                       É Batizado
                     </Label>
@@ -300,8 +445,12 @@ export function EditAuxiliaryModal({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="provinciaResidencial">Província *</Label>
-                <Select required defaultValue={auxiliary.enderecoResidencial.provincia.toLowerCase()} >
-                  <SelectTrigger id="provinciaResidencial" className="bg-purple-50/50 border border-purple-100">
+                <Select 
+                  required 
+                  value={enderecoResidencial.provincia} 
+                  onValueChange={(value: any) => setEnderecoResidencial(prev => ({...prev, provincia: value}))}
+                >
+                  <SelectTrigger id="provinciaResidencial" className="bg-[#F7F8FA] border-0">
                     <SelectValue placeholder="Selecione a província" />
                   </SelectTrigger>
                   <SelectContent>
@@ -310,7 +459,19 @@ export function EditAuxiliaryModal({
                     <SelectItem value="huambo">Huambo</SelectItem>
                     <SelectItem value="huila">Huíla</SelectItem>
                     <SelectItem value="cabinda">Cabinda</SelectItem>
+                    <SelectItem value="cuando-cubango">Cuando Cubango</SelectItem>
+                    <SelectItem value="cuanza-norte">Cuanza Norte</SelectItem>
+                    <SelectItem value="cuanza-sul">Cuanza Sul</SelectItem>
+                    <SelectItem value="cunene">Cunene</SelectItem>
+                    <SelectItem value="lunda-norte">Lunda Norte</SelectItem>
+                    <SelectItem value="lunda-sul">Lunda Sul</SelectItem>
+                    <SelectItem value="malanje">Malanje</SelectItem>
+                    <SelectItem value="moxico">Moxico</SelectItem>
                     <SelectItem value="namibe">Namibe</SelectItem>
+                    <SelectItem value="uige">Uíge</SelectItem>
+                    <SelectItem value="zaire">Zaire</SelectItem>
+                    <SelectItem value="bie">Bié</SelectItem>
+                    <SelectItem value="bengo">Bengo</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -321,8 +482,9 @@ export function EditAuxiliaryModal({
                   id="municipioResidencial"
                   placeholder="Nome do município"
                   required
-                  defaultValue={auxiliary.enderecoResidencial.municipio}
-                  className="bg-purple-50/50 border border-purple-100"
+                  value={enderecoResidencial.municipio}
+                  onChange={(e) => setEnderecoResidencial(prev => ({...prev, municipio: e.target.value}))}
+                  className="bg-[#F7F8FA] border-0"
                 />
               </div>
 
@@ -332,8 +494,9 @@ export function EditAuxiliaryModal({
                   id="bairroResidencial"
                   placeholder="Nome do bairro"
                   required
-                  defaultValue={auxiliary.enderecoResidencial.bairro}
-                  className="bg-purple-50/50 border border-purple-100"
+                  value={enderecoResidencial.bairro}
+                  onChange={(e) => setEnderecoResidencial(prev => ({...prev, bairro: e.target.value}))}
+                  className="bg-[#F7F8FA] border-0"
                 />
               </div>
 
@@ -343,8 +506,9 @@ export function EditAuxiliaryModal({
                   id="ruaResidencial"
                   placeholder="Nome da rua"
                   required
-                  defaultValue={auxiliary.enderecoResidencial.rua}
-                  className="bg-purple-50/50 border border-purple-100"
+                  value={enderecoResidencial.rua}
+                  onChange={(e) => setEnderecoResidencial(prev => ({...prev, rua: e.target.value}))}
+                  className="bg-[#F7F8FA] border-0"
                 />
               </div>
 
@@ -354,8 +518,9 @@ export function EditAuxiliaryModal({
                   id="numeroCasaResidencial"
                   placeholder="Nº"
                   required
-                  defaultValue={auxiliary.enderecoResidencial.numeroCasa}
-                  className="bg-purple-50/50 border border-purple-100"
+                  value={enderecoResidencial.numeroCasa}
+                  onChange={(e) => setEnderecoResidencial(prev => ({...prev, numeroCasa: e.target.value}))}
+                  className="bg-[#F7F8FA] border-0"
                 />
               </div>
 
@@ -364,8 +529,9 @@ export function EditAuxiliaryModal({
                 <Input
                   id="referenciaResidencial"
                   placeholder="Ex: Próximo ao mercado"
-                  defaultValue={auxiliary.enderecoResidencial.pontoReferencia}
-                  className="bg-purple-50/50 border border-purple-100"
+                  value={enderecoResidencial.pontoReferencia}
+                  onChange={(e) => setEnderecoResidencial(prev => ({...prev, pontoReferencia: e.target.value}))}
+                  className="bg-[#F7F8FA] border-0"
                 />
               </div>
             </div>
@@ -400,8 +566,9 @@ export function EditAuxiliaryModal({
                       id="nomeConjuge"
                       placeholder="Digite o nome completo do cônjuge"
                       required={showSpouseFields}
-                      defaultValue={auxiliary.conjuge?.nome}
-                      className="bg-white border border-purple-100"
+                      value={nomeConjuge}
+                      onChange={(e) => setNomeConjuge(e.target.value)}
+                      className="bg-white border-0"
                     />
                   </div>
 
@@ -412,7 +579,7 @@ export function EditAuxiliaryModal({
                       required={showSpouseFields}
                       value={telefoneConjuge}
                       onChange={(e) => setTelefoneConjuge(e.target.value)}
-                      className={`bg-white border border-purple-100 ${telefoneConjugeError ? "border-2 border-red-500" : ""}`}
+                      className={`bg-white border-0 ${telefoneConjugeError ? "border-2 border-red-500" : ""}`}
                     />
                     {telefoneConjugeError && (
                       <div className="flex items-center gap-2 text-red-600 text-sm">
@@ -422,27 +589,25 @@ export function EditAuxiliaryModal({
                     )}
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="emailConjuge">E-mail do Cônjuge</Label>
-                    <Input
-                      id="emailConjuge"
-                      type="email"
-                      placeholder="email@exemplo.com"
-                      className="bg-white border border-purple-100"
-                    />
-                  </div>
-
                   <div className="space-y-3 md:col-span-2">
                     <Label>Status Eclesiástico do Cônjuge</Label>
                     <div className="flex gap-6">
                       <div className="flex items-center gap-2">
-                        <Checkbox id="obreiroConjuge" defaultChecked={auxiliary.conjuge?.obreiro} />
+                        <Checkbox 
+                          id="obreiroConjuge" 
+                          checked={obreiroConjuge} 
+                          onCheckedChange={(checked: any) => setObreiroConjuge(checked === true)} 
+                        />
                         <Label htmlFor="obreiroConjuge" className="cursor-pointer">
                           É Obreiro
                         </Label>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Checkbox id="batizadoConjuge" defaultChecked={auxiliary.conjuge?.batizado} />
+                        <Checkbox 
+                          id="batizadoConjuge" 
+                          checked={batizadoConjuge} 
+                          onCheckedChange={(checked: any) => setBatizadoConjuge(checked === true)} 
+                        />
                         <Label htmlFor="batizadoConjuge" className="cursor-pointer">
                           É Batizado
                         </Label>
@@ -462,8 +627,12 @@ export function EditAuxiliaryModal({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <div className="space-y-2">
                 <Label htmlFor="igreja">Igreja *</Label>
-                <Select required defaultValue={auxiliary.igreja.toLowerCase().replace(/ /g, "-")}>
-                  <SelectTrigger id="igreja" className="bg-purple-50/50 border border-purple-100">
+                <Select 
+                  required 
+                  value={igreja} 
+                  onValueChange={setIgreja}
+                >
+                  <SelectTrigger id="igreja" className="bg-[#F7F8FA] border-0">
                     <SelectValue placeholder="Selecione a igreja" />
                   </SelectTrigger>
                   <SelectContent>
@@ -478,8 +647,12 @@ export function EditAuxiliaryModal({
 
               <div className="space-y-2">
                 <Label htmlFor="regiao">Região *</Label>
-                <Select required defaultValue={auxiliary.regiao.toLowerCase()}>
-                  <SelectTrigger id="regiao" className="bg-purple-50/50 border border-purple-100">
+                <Select 
+                  required 
+                  value={regiao} 
+                  onValueChange={setRegiao}
+                >
+                  <SelectTrigger id="regiao" className="bg-[#F7F8FA] border-0">
                     <SelectValue placeholder="Selecione a região" />
                   </SelectTrigger>
                   <SelectContent>
@@ -502,8 +675,12 @@ export function EditAuxiliaryModal({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="provinciaIgreja">Província *</Label>
-                <Select required defaultValue={auxiliary.enderecoIgreja.provincia.toLowerCase()}>
-                  <SelectTrigger id="provinciaIgreja" className="bg-purple-50/50 border border-purple-100">
+                <Select 
+                  required 
+                  value={enderecoIgreja.provincia} 
+                  onValueChange={(value: any) => setEnderecoIgreja(prev => ({...prev, provincia: value}))}
+                >
+                  <SelectTrigger id="provinciaIgreja" className="bg-[#F7F8FA] border-0">
                     <SelectValue placeholder="Selecione a província" />
                   </SelectTrigger>
                   <SelectContent>
@@ -512,7 +689,19 @@ export function EditAuxiliaryModal({
                     <SelectItem value="huambo">Huambo</SelectItem>
                     <SelectItem value="huila">Huíla</SelectItem>
                     <SelectItem value="cabinda">Cabinda</SelectItem>
+                    <SelectItem value="cuando-cubango">Cuando Cubango</SelectItem>
+                    <SelectItem value="cuanza-norte">Cuanza Norte</SelectItem>
+                    <SelectItem value="cuanza-sul">Cuanza Sul</SelectItem>
+                    <SelectItem value="cunene">Cunene</SelectItem>
+                    <SelectItem value="lunda-norte">Lunda Norte</SelectItem>
+                    <SelectItem value="lunda-sul">Lunda Sul</SelectItem>
+                    <SelectItem value="malanje">Malanje</SelectItem>
+                    <SelectItem value="moxico">Moxico</SelectItem>
                     <SelectItem value="namibe">Namibe</SelectItem>
+                    <SelectItem value="uige">Uíge</SelectItem>
+                    <SelectItem value="zaire">Zaire</SelectItem>
+                    <SelectItem value="bie">Bié</SelectItem>
+                    <SelectItem value="bengo">Bengo</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -523,8 +712,9 @@ export function EditAuxiliaryModal({
                   id="municipioIgreja"
                   placeholder="Nome do município"
                   required
-                  defaultValue={auxiliary.enderecoIgreja.municipio}
-                  className="bg-purple-50/50 border border-purple-100"
+                  value={enderecoIgreja.municipio}
+                  onChange={(e) => setEnderecoIgreja(prev => ({...prev, municipio: e.target.value}))}
+                  className="bg-[#F7F8FA] border-0"
                 />
               </div>
 
@@ -534,8 +724,9 @@ export function EditAuxiliaryModal({
                   id="bairroIgreja"
                   placeholder="Nome do bairro"
                   required
-                  defaultValue={auxiliary.enderecoIgreja.bairro}
-                  className="bg-purple-50/50 border border-purple-100"
+                  value={enderecoIgreja.bairro}
+                  onChange={(e) => setEnderecoIgreja(prev => ({...prev, bairro: e.target.value}))}
+                  className="bg-[#F7F8FA] border-0"
                 />
               </div>
 
@@ -545,8 +736,9 @@ export function EditAuxiliaryModal({
                   id="ruaIgreja"
                   placeholder="Nome da rua"
                   required
-                  defaultValue={auxiliary.enderecoIgreja.rua}
-                  className="bg-purple-50/50 border border-purple-100"
+                  value={enderecoIgreja.rua}
+                  onChange={(e) => setEnderecoIgreja(prev => ({...prev, rua: e.target.value}))}
+                  className="bg-[#F7F8FA] border-0"
                 />
               </div>
 
@@ -556,8 +748,9 @@ export function EditAuxiliaryModal({
                   id="numeroCasaIgreja"
                   placeholder="Nº"
                   required
-                  defaultValue={auxiliary.enderecoIgreja.numeroCasa}
-                  className="bg-purple-50/50 border border-purple-100"
+                  value={enderecoIgreja.numeroCasa}
+                  onChange={(e) => setEnderecoIgreja(prev => ({...prev, numeroCasa: e.target.value}))}
+                  className="bg-[#F7F8FA] border-0"
                 />
               </div>
 
@@ -566,8 +759,9 @@ export function EditAuxiliaryModal({
                 <Input
                   id="referenciaIgreja"
                   placeholder="Ex: Próximo à praça principal"
-                  defaultValue={auxiliary.enderecoIgreja.pontoReferencia}
-                  className="bg-purple-50/50 border border-purple-100"
+                  value={enderecoIgreja.pontoReferencia}
+                  onChange={(e) => setEnderecoIgreja(prev => ({...prev, pontoReferencia: e.target.value}))}
+                  className="bg-[#F7F8FA] border-0"
                 />
               </div>
             </div>
@@ -581,7 +775,6 @@ export function EditAuxiliaryModal({
             <Button
               type="submit"
               className="bg-gradient-to-r from-[#9333EA] to-[#A855F7] hover:from-[#7E22CE] hover:to-[#9333EA] shadow-md shadow-purple-200"
-              disabled={!!nomeError || !!telefoneError || !!telefoneConjugeError}
             >
               💕 Salvar Alterações
             </Button>
