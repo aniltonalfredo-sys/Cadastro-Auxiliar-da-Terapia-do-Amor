@@ -142,77 +142,82 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    try {
+      // Validate main photo
+      if (!foto) {
+        toast.error("Por favor, carregue a foto do auxiliar.");
+        return;
+      }
 
-    // Validate main photo
-    if (!foto) {
-      toast.error("Por favor, carregue a foto do auxiliar.");
-      return;
+      // Check for validation errors
+      if (nomeError) {
+        toast.error("Corrija os erros no formulário antes de continuar.");
+        return;
+      }
+
+      if (telefoneError) {
+        toast.error("Corrija os erros no formulário antes de continuar.");
+        return;
+      }
+
+      // Validate spouse photo if not single
+      if (showSpouseFields && !fotoConjuge) {
+        toast.error("Por favor, carregue a foto do cônjuge/parceiro.");
+        return;
+      }
+
+      if (showSpouseFields && telefoneConjugeError) {
+        toast.error("Corrija os erros no formulário antes de continuar.");
+        return;
+      }
+
+      const novoAuxiliar = {
+        id: crypto.randomUUID(),
+        nome,
+        telefone,
+        igreja,
+        regiao,
+        estadoCivil,
+        foto,
+        obreiro,
+        batizado,
+        dataCadastro: new Date().toISOString(),
+        enderecoResidencial: {
+          provincia: provinciaResidencial,
+          municipio: municipioResidencial,
+          bairro: bairroResidencial,
+          rua: ruaResidencial,
+          numeroCasa: numeroResidencial,
+          pontoReferencia: referenciaResidencial,
+        },
+        enderecoIgreja: {
+          provincia: provinciaIgreja,
+          municipio: municipioIgreja,
+          bairro: bairroIgreja,
+          rua: ruaIgreja,
+          numeroCasa: numeroIgreja,
+          pontoReferencia: referenciaIgreja,
+        },
+        conjuge: showSpouseFields
+          ? {
+            nome,
+            telefone: telefoneConjuge,
+            foto: fotoConjuge,
+            obreiro,
+            batizado,
+          }
+          : undefined,
+      }
+      onSave(novoAuxiliar);
+      handleClose();
+      toast.success("Auxiliar cadastrado com sucesso!");
+
+    } catch (error: any) {
+      toast.error(`Erro ao salvar auxiliar: ${error.message}`);
+    }finally{
+      // actualizar a lista de auxiliar apos sucesso
     }
-
-    // Check for validation errors
-    if (nomeError) {
-      toast.error("Corrija os erros no formulário antes de continuar.");
-      return;
-    }
-
-    if (telefoneError) {
-      toast.error("Corrija os erros no formulário antes de continuar.");
-      return;
-    }
-
-    // Validate spouse photo if not single
-    if (showSpouseFields && !fotoConjuge) {
-      toast.error("Por favor, carregue a foto do cônjuge/parceiro.");
-      return;
-    }
-
-    if (showSpouseFields && telefoneConjugeError) {
-      toast.error("Corrija os erros no formulário antes de continuar.");
-      return;
-    }
-
-    const novoAuxiliar = {
-      id: crypto.randomUUID(),
-      nome,
-      telefone,
-      igreja,
-      regiao,
-      estadoCivil,
-      foto,
-      obreiro,
-      batizado,
-      dataCadastro: new Date().toISOString(),
-      enderecoResidencial: {
-        provincia: provinciaResidencial,
-        municipio: municipioResidencial,
-        bairro: bairroResidencial,
-        rua: ruaResidencial,
-        numeroCasa: numeroResidencial,
-        pontoReferencia: referenciaResidencial,
-      },
-      enderecoIgreja: {
-        provincia: provinciaIgreja,
-        municipio: municipioIgreja,
-        bairro: bairroIgreja,
-        rua: ruaIgreja,
-        numeroCasa: numeroIgreja,
-        pontoReferencia: referenciaIgreja,
-      },
-      conjuge: showSpouseFields
-        ? {
-          nome,
-          telefone: telefoneConjuge,
-          foto: fotoConjuge,
-          obreiro,
-          batizado,
-        }
-        : undefined,
-    }
-
-    onSave(novoAuxiliar);
-    handleClose();
-
-  };
+  }
 
   const handleClose = () => {
     // Reset form

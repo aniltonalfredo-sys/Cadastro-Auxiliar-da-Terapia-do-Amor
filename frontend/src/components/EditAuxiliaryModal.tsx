@@ -1,9 +1,21 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "./ui/dialog";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 import { Checkbox } from "./ui/checkbox";
 import { PhotoUpload } from "./PhotoUpload";
 import { PhoneInput } from "./PhoneInput";
@@ -15,169 +27,144 @@ import type { Auxiliary } from "./AuxiliariesTable";
 interface EditAuxiliaryModalProps {
   open: boolean;
   onClose: () => void;
-  onSave: () => void;
+  onSave: (updatedAux: Auxiliary) => void; // ✅ agora aceita o auxiliar atualizado
   existingAuxiliaries: Auxiliary[];
   auxiliary: Auxiliary | null;
 }
 
-export function EditAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries, auxiliary }: EditAuxiliaryModalProps) {
-  const [estadoCivil, setEstadoCivil] = useState<string>("");
-  const [foto, setFoto] = useState<string>("");
-  const [fotoConjuge, setFotoConjuge] = useState<string>("");
-  
-  // Form fields for validation
-  const [nome, setNome] = useState<string>("");
-  const [telefone, setTelefone] = useState<string>("");
-  const [telefoneConjuge, setTelefoneConjuge] = useState<string>("");
-  
-  // Validation states
-  const [nomeError, setNomeError] = useState<string>("");
-  const [telefoneError, setTelefoneError] = useState<string>("");
-  const [telefoneConjugeError, setTelefoneConjugeError] = useState<string>("");
+export function EditAuxiliaryModal({
+  open,
+  onClose,
+  onSave,
+  existingAuxiliaries,
+  auxiliary,
+}: EditAuxiliaryModalProps) {
+  const [nome, setNome] = useState("");
+  const [telefone, setTelefone] = useState("");
+  const [estadoCivil, setEstadoCivil] = useState("");
+  const [foto, setFoto] = useState("");
+  const [obreiro, setObreiro] = useState(false);
+  const [batizado, setBatizado] = useState(false);
 
-  // Load auxiliary data when modal opens
+  // Conjuge
+  const [fotoConjuge, setFotoConjuge] = useState("");
+  const [nomeConjuge, setNomeConjuge] = useState("");
+  const [telefoneConjuge, setTelefoneConjuge] = useState("");
+  const [obreiroConjuge, setObreiroConjuge] = useState(false);
+  const [batizadoConjuge, setBatizadoConjuge] = useState(false);
+
+  // Erros
+  const [nomeError, setNomeError] = useState("");
+  const [telefoneError, setTelefoneError] = useState("");
+  const [telefoneConjugeError, setTelefoneConjugeError] = useState("");
+
+  const showSpouseFields = estadoCivil !== "" && estadoCivil !== "solteiro";
+
+  // 🧩 Carregar dados do auxiliar selecionado
   useEffect(() => {
     if (auxiliary && open) {
       setNome(auxiliary.nome);
       setTelefone(auxiliary.telefone);
       setFoto(auxiliary.foto);
       setEstadoCivil(
-        auxiliary.estadoCivil === "Solteiro(a)" ? "solteiro" :
-        auxiliary.estadoCivil === "Casado(a)" ? "casado" :
-        auxiliary.estadoCivil === "Divorciado(a)" ? "divorciado" :
-        auxiliary.estadoCivil === "Viúvo(a)" ? "viuvo" : ""
+        auxiliary.estadoCivil === "Solteiro(a)"
+          ? "solteiro"
+          : auxiliary.estadoCivil === "Casado(a)"
+          ? "casado"
+          : auxiliary.estadoCivil === "União Estável"
+          ? "uniao-estavel"
+          : auxiliary.estadoCivil === "Divorciado(a)"
+          ? "divorciado"
+          : auxiliary.estadoCivil === "Viúvo(a)"
+          ? "viuvo"
+          : ""
       );
-      
+      setObreiro(auxiliary.obreiro);
+      setBatizado(auxiliary.batizado);
+
       if (auxiliary.conjuge) {
-        setTelefoneConjuge(auxiliary.conjuge.telefone);
-        setFotoConjuge(auxiliary.conjuge.foto);
+        setNomeConjuge(auxiliary.conjuge.nome || "");
+        setTelefoneConjuge(auxiliary.conjuge.telefone || "");
+        setFotoConjuge(auxiliary.conjuge.foto || "");
+        setObreiroConjuge(auxiliary.conjuge.obreiro || false);
+        setBatizadoConjuge(auxiliary.conjuge.batizado || false);
       }
     }
   }, [auxiliary, open]);
 
-  // Real-time validation for name
+  // 🧩 Validar nome duplicado
   useEffect(() => {
-    if (nome.trim().length === 0) {
-      setNomeError("");
-      return;
-    }
-
+    if (!nome.trim()) return setNomeError("");
     const isDuplicate = existingAuxiliaries.some(
-      (aux) => aux.id !== auxiliary?.id && aux.nome.toLowerCase() === nome.toLowerCase().trim()
+      (a) => a.id !== auxiliary?.id && a.nome.toLowerCase() === nome.toLowerCase().trim()
     );
-
-    if (isDuplicate) {
-      setNomeError("Este nome já está cadastrado no sistema.");
-    } else {
-      setNomeError("");
-    }
+    setNomeError(isDuplicate ? "Este nome já está cadastrado no sistema." : "");
   }, [nome, existingAuxiliaries, auxiliary]);
 
-  // Real-time validation for phone
+  // 🧩 Validar telefone duplicado
   useEffect(() => {
-    if (telefone.trim().length === 0) {
-      setTelefoneError("");
-      return;
-    }
-
-    const cleanPhone = telefone.replace(/\D/g, "");
-    if (cleanPhone.length < 12) {
-      setTelefoneError("");
-      return;
-    }
-
-    const isDuplicate = existingAuxiliaries.some(
-      (aux) => aux.id !== auxiliary?.id && aux.telefone.replace(/\D/g, "") === cleanPhone
+    if (!telefone.trim()) return setTelefoneError("");
+    const clean = telefone.replace(/\D/g, "");
+    if (clean.length < 9) return setTelefoneError("");
+    const duplicate = existingAuxiliaries.some(
+      (a) => a.id !== auxiliary?.id && a.telefone.replace(/\D/g, "") === clean
     );
-
-    if (isDuplicate) {
-      setTelefoneError("Este telefone já está cadastrado no sistema.");
-    } else {
-      setTelefoneError("");
-    }
+    setTelefoneError(duplicate ? "Este telefone já está cadastrado no sistema." : "");
   }, [telefone, existingAuxiliaries, auxiliary]);
 
-  // Real-time validation for spouse phone
+  // 🧩 Validar telefone do cônjuge
   useEffect(() => {
-    if (telefoneConjuge.trim().length === 0) {
-      setTelefoneConjugeError("");
-      return;
-    }
-
-    const cleanPhone = telefoneConjuge.replace(/\D/g, "");
-    if (cleanPhone.length < 12) {
-      setTelefoneConjugeError("");
-      return;
-    }
-
-    const isDuplicate = existingAuxiliaries.some((aux) => {
-      if (aux.id === auxiliary?.id) return false;
-      const auxPhone = aux.telefone.replace(/\D/g, "");
-      const spousePhone = aux.conjuge?.telefone.replace(/\D/g, "");
-      return auxPhone === cleanPhone || spousePhone === cleanPhone;
+    if (!telefoneConjuge.trim()) return setTelefoneConjugeError("");
+    const clean = telefoneConjuge.replace(/\D/g, "");
+    const mainClean = telefone.replace(/\D/g, "");
+    if (clean.length < 9) return setTelefoneConjugeError("");
+    const duplicate = existingAuxiliaries.some((a) => {
+      if (a.id === auxiliary?.id) return false;
+      const main = a.telefone.replace(/\D/g, "");
+      const spouse = a.conjuge?.telefone?.replace(/\D/g, "");
+      return main === clean || spouse === clean;
     });
-
-    const sameAsMain = telefone.replace(/\D/g, "") === cleanPhone;
-
-    if (isDuplicate) {
-      setTelefoneConjugeError("Este telefone já está cadastrado no sistema.");
-    } else if (sameAsMain) {
-      setTelefoneConjugeError("O telefone do cônjuge não pode ser igual ao do auxiliar.");
-    } else {
-      setTelefoneConjugeError("");
-    }
+    if (duplicate) return setTelefoneConjugeError("Este telefone já está cadastrado no sistema.");
+    if (clean === mainClean) return setTelefoneConjugeError("O telefone do cônjuge não pode ser igual ao do auxiliar.");
+    setTelefoneConjugeError("");
   }, [telefoneConjuge, telefone, existingAuxiliaries, auxiliary]);
-
-  const handleEstadoCivilChange = (value: string) => {
-    setEstadoCivil(value);
-    if (value === "solteiro") {
-      setFotoConjuge("");
-      setTelefoneConjuge("");
-    }
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!foto) {
-      toast.error("Por favor, carregue a foto do auxiliar.");
-      return;
-    }
 
-    if (nomeError || telefoneError) {
-      toast.error("Corrija os erros no formulário antes de continuar.");
-      return;
-    }
+    if (!foto) return toast.error("Por favor, carregue a foto do auxiliar.");
+    if (nomeError || telefoneError || telefoneConjugeError)
+      return toast.error("Corrija os erros no formulário antes de continuar.");
 
-    if (showSpouseFields && !fotoConjuge) {
-      toast.error("Por favor, carregue a foto do cônjuge/parceiro.");
-      return;
-    }
+    const updatedAuxiliary: Auxiliary = {
+      ...auxiliary!,
+      nome,
+      telefone,
+      estadoCivil,
+      foto,
+      obreiro,
+      batizado,
+      conjuge: showSpouseFields
+        ? {
+            ...auxiliary?.conjuge,
+            nome: nomeConjuge,
+            telefone: telefoneConjuge,
+            foto: fotoConjuge,
+            obreiro: obreiroConjuge,
+            batizado: batizadoConjuge,
+          }
+        : undefined,
+    };
 
-    if (showSpouseFields && telefoneConjugeError) {
-      toast.error("Corrija os erros no formulário antes de continuar.");
-      return;
-    }
-
+    onSave(updatedAuxiliary);
     toast.success("Auxiliar atualizado com sucesso!");
-    onSave();
     handleClose();
   };
 
   const handleClose = () => {
-    setEstadoCivil("");
-    setFoto("");
-    setFotoConjuge("");
-    setNome("");
-    setTelefone("");
-    setTelefoneConjuge("");
-    setNomeError("");
-    setTelefoneError("");
-    setTelefoneConjugeError("");
     onClose();
+    // opcional: reset de estados
   };
-
-  const showSpouseFields = estadoCivil !== "" && estadoCivil !== "solteiro";
 
   if (!auxiliary) return null;
 
@@ -198,7 +185,7 @@ export function EditAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries,
           {/* Personal Information */}
           <div>
             <h3 className="mb-4">Dados Pessoais do Auxiliar</h3>
-            
+
             {/* Photo Upload */}
             <div className="mb-6">
               <PhotoUpload
@@ -258,7 +245,7 @@ export function EditAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries,
 
               <div className="space-y-2">
                 <Label htmlFor="estadoCivil">Estado Civil *</Label>
-                <Select required value={estadoCivil} onValueChange={handleEstadoCivilChange}>
+                <Select required value={estadoCivil}>
                   <SelectTrigger id="estadoCivil" className="bg-purple-50/50 border border-purple-100">
                     <SelectValue placeholder="Selecione" />
                   </SelectTrigger>
@@ -282,16 +269,16 @@ export function EditAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries,
               </div>
 
               <div className="space-y-3 md:col-span-2">
-                <Label>Status Eclesiástico</Label>
+                <Label>Informações Eclesiástico</Label>
                 <div className="flex gap-6">
                   <div className="flex items-center gap-2">
-                    <Checkbox id="obreiro" defaultChecked={auxiliary.obreiro} />
+                    <Checkbox id="obreiro" defaultValue={auxiliary.obreiro}  />
                     <Label htmlFor="obreiro" className="cursor-pointer">
                       É Obreiro
                     </Label>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Checkbox id="batizado" defaultChecked={auxiliary.batizado} />
+                    <Checkbox id="batizado" defaultValue={auxiliary.batizado} />
                     <Label htmlFor="batizado" className="cursor-pointer">
                       É Batizado
                     </Label>
@@ -309,11 +296,11 @@ export function EditAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries,
               <MapPin className="w-5 h-5 text-[#9333EA]" />
               <h3 className="text-purple-900">🏡 Endereço Residencial</h3>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="provinciaResidencial">Província *</Label>
-                <Select required defaultValue={auxiliary.enderecoResidencial.provincia.toLowerCase()}>
+                <Select required defaultValue={auxiliary.enderecoResidencial.provincia.toLowerCase()} >
                   <SelectTrigger id="provinciaResidencial" className="bg-purple-50/50 border border-purple-100">
                     <SelectValue placeholder="Selecione a província" />
                   </SelectTrigger>
@@ -388,7 +375,7 @@ export function EditAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries,
           {showSpouseFields && (
             <>
               <Separator />
-              
+
               <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 border border-purple-200">
                 <div className="flex items-center gap-2 mb-4">
                   <Users className="w-5 h-5 text-[#9333EA]" />
@@ -511,7 +498,7 @@ export function EditAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries,
               <MapPin className="w-5 h-5 text-[#9333EA]" />
               <h4 className="text-purple-900">⛪ Endereço da Igreja</h4>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="provinciaIgreja">Província *</Label>
@@ -591,8 +578,8 @@ export function EditAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries,
             <Button type="button" variant="outline" onClick={handleClose} className="border-purple-200 text-purple-700 hover:bg-purple-50">
               Cancelar
             </Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="bg-gradient-to-r from-[#9333EA] to-[#A855F7] hover:from-[#7E22CE] hover:to-[#9333EA] shadow-md shadow-purple-200"
               disabled={!!nomeError || !!telefoneError || !!telefoneConjugeError}
             >
