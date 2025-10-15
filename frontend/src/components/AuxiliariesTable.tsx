@@ -12,7 +12,7 @@ import {
 } from "./ui/table";
 
 export interface Auxiliary {
-  id: string;
+  id?: string;
   foto: string;
   nome: string;
   email: string;
@@ -125,7 +125,7 @@ export function AuxiliariesTable({
                     </Badge>
                   )}
                 </TableCell>
-                <TableCell>{auxiliary.dataCadastro}</TableCell>
+                <TableCell>{new Date(auxiliary.dataCadastro).toLocaleDateString('pt-AO')}</TableCell>
                 <TableCell>
                   <div className="flex items-center justify-center gap-1">
                     <Button
@@ -144,14 +144,14 @@ export function AuxiliariesTable({
                     >
                       <Pencil className="w-4 h-4" />
                     </Button>
-                    <Button
+                    {/* <Button
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 text-rose-600 hover:bg-rose-50"
                       onClick={() => onDelete(auxiliary)}
                     >
                       <Trash2 className="w-4 h-4" />
-                    </Button>
+                    </Button> */}
                   </div>
                 </TableCell>
               </TableRow>

@@ -5,6 +5,16 @@ const prisma = new PrismaClient();
 async function main() {
   console.log("🌱 Iniciando seed da base de dados...");
 
+  try {
+    // Limpar dados na ordem correta (devido às constraints de foreign key)
+    await prisma.auxiliar.deleteMany();
+    await prisma.conjuge.deleteMany();
+    await prisma.endereco.deleteMany();
+    console.log("🗑️ Dados antigos removidos");
+  } catch (error) {
+    console.log("ℹ️  Tabelas vazias ou não existentes, continuando...");
+  }
+
   const mockAuxiliares = [
     {
       nome: "Maria Silva Santos",
@@ -13,9 +23,10 @@ async function main() {
       regiao: "Centro",
       estadoCivil: "Solteiro(a)",
       telefone: "+244 923 456 789",
+      email: "maria.silva@email.com",
+      dataNascimento: new Date("1990-05-15"),
       obreiro: true,
       batizado: true,
-      dataCadastro: new Date("2024-01-15"),
       enderecoResidencial: {
         tipo: "Residencial",
         provincia: "Luanda",
@@ -42,9 +53,10 @@ async function main() {
       regiao: "Norte",
       estadoCivil: "Solteiro(a)",
       telefone: "+244 945 678 901",
+      email: "joao.oliveira@email.com",
+      dataNascimento: new Date("1988-08-22"),
       obreiro: false,
       batizado: true,
-      dataCadastro: new Date("2024-01-20"),
       enderecoResidencial: {
         tipo: "Residencial",
         provincia: "Luanda",
@@ -71,9 +83,10 @@ async function main() {
       regiao: "Sul",
       estadoCivil: "Casado(a)",
       telefone: "+244 912 345 678",
+      email: "ana.costa@email.com",
+      dataNascimento: new Date("1992-03-10"),
       obreiro: true,
       batizado: true,
-      dataCadastro: new Date("2024-01-22"),
       enderecoResidencial: {
         tipo: "Residencial",
         provincia: "Benguela",
@@ -101,15 +114,46 @@ async function main() {
       },
     },
     {
+      nome: "Carlos Eduardo Souza",
+      foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Carlos",
+      igreja: "Igreja Luz Divina",
+      regiao: "Leste",
+      estadoCivil: "Solteiro(a)",
+      telefone: "+244 934 567 890",
+      email: "carlos.souza@email.com",
+      dataNascimento: new Date("1995-11-30"),
+      obreiro: false,
+      batizado: false,
+      enderecoResidencial: {
+        tipo: "Residencial",
+        provincia: "Huíla",
+        municipio: "Lubango",
+        bairro: "Comercial",
+        rua: "Rua Sá da Bandeira",
+        numeroCasa: "321",
+        pontoReferencia: "Ao lado do Supermercado",
+      },
+      enderecoIgreja: {
+        tipo: "Igreja",
+        provincia: "Huíla",
+        municipio: "Lubango",
+        bairro: "Lajes",
+        rua: "Rua Principal",
+        numeroCasa: "800",
+        pontoReferencia: "Próximo à Praça",
+      },
+    },
+    {
       nome: "Beatriz Fernandes Lima",
       foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Beatriz",
       igreja: "Igreja Amor Perfeito",
       regiao: "Oeste",
       estadoCivil: "Divorciado(a)",
       telefone: "+244 956 789 012",
+      email: "beatriz.lima@email.com",
+      dataNascimento: new Date("1985-07-18"),
       obreiro: true,
       batizado: true,
-      dataCadastro: new Date("2024-01-28"),
       enderecoResidencial: {
         tipo: "Residencial",
         provincia: "Huambo",
@@ -128,37 +172,65 @@ async function main() {
         numeroCasa: "1200",
         pontoReferencia: "Ao lado da Câmara Municipal",
       },
-    },
+    }
   ];
 
+  let createdCount = 0;
+  
   for (const aux of mockAuxiliares) {
-    await prisma.auxiliar.create({
-      data: {
-        nome: aux.nome,
-        foto: aux.foto,
-        igreja: aux.igreja,
-        regiao: aux.regiao,
-        estadoCivil: aux.estadoCivil,
-        telefone: aux.telefone,
-        obreiro: aux.obreiro,
-        batizado: aux.batizado,
-        dataCadastro: aux.dataCadastro,
-        enderecoResidencial: {
-          create: aux.enderecoResidencial,
-        },
-        enderecoIgreja: {
-          create: aux.enderecoIgreja,
-        },
-        conjuge: aux.conjuge
-          ? {
-              create: aux.conjuge,
+    try {
+      // Criar primeiro os endereços
+      const enderecoResidencial = await prisma.endereco.create({
+        data: aux.enderecoResidencial
+      });
+
+      const enderecoIgreja = await prisma.endereco.create({
+        data: aux.enderecoIgreja
+      });
+
+      // Criar o auxiliar
+      const novoAuxiliar = await prisma.auxiliar.create({
+        data: {
+          nome: aux.nome,
+          foto: aux.foto,
+          igreja: aux.igreja,
+          regiao: aux.regiao,
+          estadoCivil: aux.estadoCivil,
+          telefone: aux.telefone,
+          email: aux.email,
+          dataNascimento: aux.dataNascimento,
+          obreiro: aux.obreiro,
+          batizado: aux.batizado,
+          enderecoResidencialId: enderecoResidencial.id,
+          enderecoIgrejaId: enderecoIgreja.id,
+        }
+      });
+
+      // Criar cônjuge se existir
+      if (aux.conjuge) {
+        await prisma.conjuge.create({
+          data: {
+            ...aux.conjuge,
+            auxiliar: {
+              connect: { id: novoAuxiliar.id }
             }
-          : undefined,
-      },
-    });
+          }
+        });
+      }
+
+      createdCount++;
+      console.log(`✅ ${aux.nome} criado(a)`);
+      
+    } catch (error) {
+      console.error(`❌ Erro ao criar ${aux.nome}:`, error);
+    }
   }
 
-  console.log("✅ Seed concluído com sucesso!");
+  console.log(`\n🎉 Seed concluído com sucesso!`);
+  console.log(`📊 ${createdCount} auxiliares criados`);
+  console.log(`🏛️ Igrejas: Central, Nova Esperança, Fé Viva, Luz Divina, Amor Perfeito`);
+  console.log(`🗺️ Regiões: Centro, Norte, Sul, Leste, Oeste`);
+  console.log(`📍 Províncias: Luanda, Benguela, Huíla, Huambo`);
 }
 
 main()

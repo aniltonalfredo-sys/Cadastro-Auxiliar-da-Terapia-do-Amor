@@ -64,7 +64,7 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
   const [dataUniao, setDataUniao] = useState<string>("");
   const [tempoRelacionamento, setTempoRelacionamento] = useState<string>("");
 
- // Loading state
+  // Loading state
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
 
@@ -155,78 +155,197 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // const handleSubmit = (e: React.FormEvent) => {
 
 
+  //   e.preventDefault();
+  //   try {
+  //     // Validate main photo
+  //     if (!foto) {
+  //       toast.error("Por favor, carregue a foto do auxiliar.");
+  //       return;
+  //     }
+
+  //     // Check for validation errors
+  //     if (nomeError) {
+  //       toast.error("Corrija os erros no formulário antes de continuar.");
+  //       return;
+  //     }
+
+  //     if (telefoneError) {
+  //       toast.error("Corrija os erros no formulário antes de continuar.");
+  //       return;
+  //     }
+
+  //     // Validate spouse photo if not single
+  //     if (showSpouseFields && !fotoConjuge) {
+  //       toast.error("Por favor, carregue a foto do cônjuge/parceiro.");
+  //       return;
+  //     }
+
+  //     if (showSpouseFields && telefoneConjugeError) {
+  //       toast.error("Corrija os erros no formulário antes de continuar.");
+  //       return;
+  //     }
+
+  //     // Mapear valores para o formato correto
+  //     const estadoCivilMap: { [key: string]: string } = {
+  //       "solteiro": "Solteiro(a)",
+  //       "casado": "Casado(a)",
+  //       "uniao-estavel": "União Estável",
+  //       "divorciado": "Divorciado(a)",
+  //       "viuvo": "Viúvo(a)"
+  //     };
+
+  //     const igrejaMap: { [key: string]: string } = {
+  //       "central": "Igreja Central",
+  //       "nova-esperanca": "Igreja Nova Esperança",
+  //       "fe-viva": "Igreja Fé Viva",
+  //       "luz-divina": "Igreja Luz Divina",
+  //       "amor-perfeito": "Igreja Amor Perfeito"
+  //     };
+
+  //     const regiaoMap: { [key: string]: string } = {
+  //       "norte": "Norte",
+  //       "sul": "Sul",
+  //       "leste": "Leste",
+  //       "oeste": "Oeste",
+  //       "centro": "Centro"
+  //     };
+
+  //     const novoAuxiliar = {
+  //       id: crypto.randomUUID(),
+  //       nome,
+  //       telefone,
+  //       email: email.trim(),
+  //       igreja,
+  //       regiao,
+  //       estadoCivil,
+  //       dataNascimento,
+  //       foto,
+  //       obreiro,
+  //       batizado,
+  //       dataCadastro: new Date().toISOString(),
+  //       enderecoResidencial: {
+  //         provincia: provinciaResidencial,
+  //         municipio: municipioResidencial,
+  //         bairro: bairroResidencial,
+  //         rua: ruaResidencial,
+  //         numeroCasa: numeroResidencial,
+  //         pontoReferencia: referenciaResidencial,
+  //       },
+  //       enderecoIgreja: {
+  //         provincia: provinciaIgreja,
+  //         municipio: municipioIgreja,
+  //         bairro: bairroIgreja,
+  //         rua: ruaIgreja,
+  //         numeroCasa: numeroIgreja,
+  //         pontoReferencia: referenciaIgreja,
+  //       },
+  //       conjuge: showSpouseFields
+  //         ? {
+  //           nome: nomeConjuge,
+  //           telefone: telefoneConjuge,
+  //           foto: fotoConjuge,
+  //           obreiro: obreiroConjuge,
+  //           batizado: batizadoConjuge,
+  //         }
+  //         : undefined,
+  //     }
+  //     onSave(novoAuxiliar);
+  //     handleClose();
+  //     toast.success("Auxiliar cadastrado com sucesso!");
+
+  //   } catch (error: any) {
+  //     toast.error(`Erro ao salvar auxiliar: ${error.message}`);
+  //   } finally {
+  //     // actualizar a lista de auxiliar apos sucesso
+  //   }
+  // }
+
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // setFormSubmitted(true);
+
+    // if (!validateForm()) {
+    //   toast.error("Por favor, preencha todos os campos obrigatórios corretamente.");
+    //   return;
+    // }
+
+    setIsSubmitting(true);
+
     try {
-      // Validate main photo
-      if (!foto) {
-        toast.error("Por favor, carregue a foto do auxiliar.");
-        return;
-      }
+      // Mapear valores para o formato correto
+      const estadoCivilMap: { [key: string]: string } = {
+        "solteiro": "Solteiro(a)",
+        "casado": "Casado(a)",
+        "uniao-estavel": "União Estável",
+        "divorciado": "Divorciado(a)",
+        "viuvo": "Viúvo(a)"
+      };
 
-      // Check for validation errors
-      if (nomeError) {
-        toast.error("Corrija os erros no formulário antes de continuar.");
-        return;
-      }
+      const igrejaMap: { [key: string]: string } = {
+        "central": "Igreja Central",
+        "nova-esperanca": "Igreja Nova Esperança",
+        "fe-viva": "Igreja Fé Viva",
+        "luz-divina": "Igreja Luz Divina",
+        "amor-perfeito": "Igreja Amor Perfeito"
+      };
 
-      if (telefoneError) {
-        toast.error("Corrija os erros no formulário antes de continuar.");
-        return;
-      }
+      const regiaoMap: { [key: string]: string } = {
+        "norte": "Norte",
+        "sul": "Sul",
+        "leste": "Leste",
+        "oeste": "Oeste",
+        "centro": "Centro"
+      };
 
-      // Validate spouse photo if not single
-      if (showSpouseFields && !fotoConjuge) {
-        toast.error("Por favor, carregue a foto do cônjuge/parceiro.");
-        return;
-      }
+      // Função para capitalizar a primeira letra
+      const capitalizar = (texto: string) => {
+        return texto.charAt(0).toUpperCase() + texto.slice(1).toLowerCase();
+      };
 
-      if (showSpouseFields && telefoneConjugeError) {
-        toast.error("Corrija os erros no formulário antes de continuar.");
-        return;
-      }
-
-      const novoAuxiliar = {
-        id: crypto.randomUUID(),
-        nome,
+      const novoAuxiliar: Auxiliary = {
+        nome: nome.trim(),
         telefone,
         email: email.trim(),
-        igreja,
-        regiao,
-        estadoCivil,
+        igreja: igrejaMap[igreja] || igreja,
+        regiao: regiaoMap[regiao] || regiao,
+        estadoCivil: estadoCivilMap[estadoCivil] || estadoCivil,
         dataNascimento,
         foto,
         obreiro,
         batizado,
         dataCadastro: new Date().toISOString(),
         enderecoResidencial: {
-          provincia: provinciaResidencial,
-          municipio: municipioResidencial,
-          bairro: bairroResidencial,
-          rua: ruaResidencial,
+          provincia: capitalizar(provinciaResidencial),
+          municipio: capitalizar(municipioResidencial),
+          bairro: capitalizar(bairroResidencial),
+          rua: capitalizar(ruaResidencial),
           numeroCasa: numeroResidencial,
           pontoReferencia: referenciaResidencial,
         },
         enderecoIgreja: {
-          provincia: provinciaIgreja,
-          municipio: municipioIgreja,
-          bairro: bairroIgreja,
-          rua: ruaIgreja,
+          provincia: capitalizar(provinciaIgreja),
+          municipio: capitalizar(municipioIgreja),
+          bairro: capitalizar(bairroIgreja),
+          rua: capitalizar(ruaIgreja),
           numeroCasa: numeroIgreja,
           pontoReferencia: referenciaIgreja,
         },
         conjuge: showSpouseFields
           ? {
-            nome: nomeConjuge,
+            nome: nomeConjuge.trim(),
             telefone: telefoneConjuge,
             foto: fotoConjuge,
             obreiro: obreiroConjuge,
             batizado: batizadoConjuge,
           }
           : undefined,
-      }
+      };
+
+      console.log("Dados mapeados para envio:", novoAuxiliar);
       onSave(novoAuxiliar);
       handleClose();
       toast.success("Auxiliar cadastrado com sucesso!");
@@ -234,11 +353,11 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
     } catch (error: any) {
       toast.error(`Erro ao salvar auxiliar: ${error.message}`);
     } finally {
-      // actualizar a lista de auxiliar apos sucesso
+      setIsSubmitting(false);
     }
-  }
+  };
 
-   const resetForm = () => {
+  const resetForm = () => {
     setEstadoCivil("");
     setFoto("");
     setFotoConjuge("");
@@ -295,9 +414,9 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-3">
           {/* Personal Information */}
-          <div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <h3 className="mb-4">Dados Pessoais do Auxiliar</h3>
 
             {/* Photo Upload */}
@@ -397,7 +516,7 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
                   <div className="flex items-center gap-2">
                     <Checkbox id="batizado" checked={batizado} onCheckedChange={(checked: any) => setBatizado(!!checked)} />
                     <Label htmlFor="batizado" className="cursor-pointer">
-                      É Batizado
+                      É Baptizado
                     </Label>
                   </div>
                 </div>
@@ -417,29 +536,30 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="provinciaResidencial">Província *</Label>
+                {/* Província Residencial */}
                 <Select required value={provinciaResidencial} onValueChange={setProvinciaResidencial}>
                   <SelectTrigger id="provinciaResidencial" className="bg-[#F7F8FA] border-0">
                     <SelectValue placeholder="Selecione a província" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="luanda">Luanda</SelectItem>
-                    <SelectItem value="benguela">Benguela</SelectItem>
-                    <SelectItem value="huambo">Huambo</SelectItem>
-                    <SelectItem value="huila">Huíla</SelectItem>
-                    <SelectItem value="cabinda">Cabinda</SelectItem>
-                    <SelectItem value="cuando-cubango">Cuando Cubango</SelectItem>
-                    <SelectItem value="cuanza-norte">Cuanza Norte</SelectItem>
-                    <SelectItem value="cuanza-sul">Cuanza Sul</SelectItem>
-                    <SelectItem value="cunene">Cunene</SelectItem>
-                    <SelectItem value="lunda-norte">Lunda Norte</SelectItem>
-                    <SelectItem value="lunda-sul">Lunda Sul</SelectItem>
-                    <SelectItem value="malanje">Malanje</SelectItem>
-                    <SelectItem value="moxico">Moxico</SelectItem>
-                    <SelectItem value="namibe">Namibe</SelectItem>
-                    <SelectItem value="uige">Uíge</SelectItem>
-                    <SelectItem value="zaire">Zaire</SelectItem>
-                    <SelectItem value="bie">Bié</SelectItem>
-                    <SelectItem value="bengo">Bengo</SelectItem>
+                    <SelectItem value="Luanda">Luanda</SelectItem>
+                    <SelectItem value="Benguela">Benguela</SelectItem>
+                    <SelectItem value="Huambo">Huambo</SelectItem>
+                    <SelectItem value="Huíla">Huíla</SelectItem>
+                    <SelectItem value="Cabinda">Cabinda</SelectItem>
+                    <SelectItem value="Cuando Cubango">Cuando Cubango</SelectItem>
+                    <SelectItem value="Cuanza Norte">Cuanza Norte</SelectItem>
+                    <SelectItem value="Cuanza Sul">Cuanza Sul</SelectItem>
+                    <SelectItem value="Cunene">Cunene</SelectItem>
+                    <SelectItem value="Lunda Norte">Lunda Norte</SelectItem>
+                    <SelectItem value="Lunda Sul">Lunda Sul</SelectItem>
+                    <SelectItem value="Malanje">Malanje</SelectItem>
+                    <SelectItem value="Moxico">Moxico</SelectItem>
+                    <SelectItem value="Namibe">Namibe</SelectItem>
+                    <SelectItem value="Uíge">Uíge</SelectItem>
+                    <SelectItem value="Zaire">Zaire</SelectItem>
+                    <SelectItem value="Bié">Bié</SelectItem>
+                    <SelectItem value="Bengo">Bengo</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -590,7 +710,7 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
                           onCheckedChange={(checked: any) => setBatizadoConjuge(!!checked)}
                         />
                         <Label htmlFor="batizadoConjuge" className="cursor-pointer">
-                          É Batizado
+                          É Baptizado
                         </Label>
                       </div>
                     </div>
@@ -653,24 +773,24 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
                     <SelectValue placeholder="Selecione a província" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="luanda">Luanda</SelectItem>
-                    <SelectItem value="benguela">Benguela</SelectItem>
-                    <SelectItem value="huambo">Huambo</SelectItem>
-                    <SelectItem value="huila">Huíla</SelectItem>
-                    <SelectItem value="cabinda">Cabinda</SelectItem>
-                    <SelectItem value="cuando-cubango">Cuando Cubango</SelectItem>
-                    <SelectItem value="cuanza-norte">Cuanza Norte</SelectItem>
-                    <SelectItem value="cuanza-sul">Cuanza Sul</SelectItem>
-                    <SelectItem value="cunene">Cunene</SelectItem>
-                    <SelectItem value="lunda-norte">Lunda Norte</SelectItem>
-                    <SelectItem value="lunda-sul">Lunda Sul</SelectItem>
-                    <SelectItem value="malanje">Malanje</SelectItem>
-                    <SelectItem value="moxico">Moxico</SelectItem>
-                    <SelectItem value="namibe">Namibe</SelectItem>
-                    <SelectItem value="uige">Uíge</SelectItem>
-                    <SelectItem value="zaire">Zaire</SelectItem>
-                    <SelectItem value="bie">Bié</SelectItem>
-                    <SelectItem value="bengo">Bengo</SelectItem>
+                    <SelectItem value="Luanda">Luanda</SelectItem>
+                    <SelectItem value="Benguela">Benguela</SelectItem>
+                    <SelectItem value="Huambo">Huambo</SelectItem>
+                    <SelectItem value="Huíla">Huíla</SelectItem>
+                    <SelectItem value="Cabinda">Cabinda</SelectItem>
+                    <SelectItem value="Cuando Cubango">Cuando Cubango</SelectItem>
+                    <SelectItem value="Cuanza Norte">Cuanza Norte</SelectItem>
+                    <SelectItem value="Cuanza Sul">Cuanza Sul</SelectItem>
+                    <SelectItem value="Cunene">Cunene</SelectItem>
+                    <SelectItem value="Lunda Norte">Lunda Norte</SelectItem>
+                    <SelectItem value="Lunda Sul">Lunda Sul</SelectItem>
+                    <SelectItem value="Malanje">Malanje</SelectItem>
+                    <SelectItem value="Moxico">Moxico</SelectItem>
+                    <SelectItem value="Namibe">Namibe</SelectItem>
+                    <SelectItem value="Uíge">Uíge</SelectItem>
+                    <SelectItem value="Zaire">Zaire</SelectItem>
+                    <SelectItem value="Bié">Bié</SelectItem>
+                    <SelectItem value="Bengo">Bengo</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -762,7 +882,7 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
                       className="bg-[#F7F8FA] border-0"
                       value={tempoRelacionamento}
                       onChange={(e) => setTempoRelacionamento(e.target.value)}
-                     />
+                    />
                   </div>
                 </div>
               </div>
@@ -771,19 +891,19 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
 
           {/* Action Buttons */}
           <div className="flex justify-end gap-2 pt-4 border-t border-purple-100">
-            <Button 
-            type="button" 
-            variant="outline" 
-            onClick={handleClose} 
-            className="border-purple-200 text-purple-700 hover:bg-purple-50">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleClose}
+              className="border-purple-200 text-purple-700 hover:bg-purple-50">
               Cancelar
             </Button>
             <Button
               type="submit"
               className="bg-gradient-to-r from-[#9333EA] to-[#A855F7] hover:from-[#7E22CE] hover:to-[#9333EA] shadow-md shadow-purple-200"
-              
+
               disabled={!!nomeError || !!telefoneError || !!telefoneConjugeError}
-              
+
             >
               💕 Cadastrar Auxiliar
             </Button>

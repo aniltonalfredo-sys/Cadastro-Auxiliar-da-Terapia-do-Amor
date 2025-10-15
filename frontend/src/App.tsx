@@ -96,6 +96,7 @@ export default function App() {
 
   const handleSaveAuxiliar = async (novoAuxiliar: Auxiliary) => {
     try {
+      console.log("Dados sendo enviados: ", novoAuxiliar)
       const res = await criarAuxiliar(novoAuxiliar);
       setAuxiliares((prev) => [...prev, res]);
       toast.success("Auxiliar criado com sucesso!");
@@ -114,7 +115,7 @@ export default function App() {
       
       const res = await actualizarAuxiliar(updatedAux.id, updatedAux);
       setAuxiliares((prev) => prev.map((aux) => aux.id === updatedAux.id ? res : aux));
-      toast.success("Auxiliar atualizado com sucesso!");
+      toast.success("Auxiliar actualizado com sucesso!");
       setIsEditModalOpen(false);
     } catch(error: any) {
       toast.error(`Erro ao atualizar auxiliar: ${error.message}`);
@@ -268,7 +269,7 @@ export default function App() {
         </div>
 
         {/* Charts - Descomente se quiser usar */}
-        {/* {stats.total > 0 && (
+        {stats.total > 0 && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             <div className="bg-white/80 backdrop-blur rounded-2xl border border-purple-100 p-6 shadow-sm shadow-purple-100">
               <h3 className="mb-4 text-purple-900 flex items-center gap-2">
@@ -322,16 +323,16 @@ export default function App() {
               </ResponsiveContainer>
             </div>
           </div>
-        )} */}
+        )}
 
         {/* Filters - Descomente se quiser usar */}
-        {/* {auxiliares.length > 0 && (
+        {auxiliares.length > 0 && (
           <FilterBar
             filters={filters}
             onFilterChange={setFilters}
             onClearFilters={handleClearFilters}
           />
-        )} */}
+        )}
 
         {/* Action Buttons */}
         <div className="flex flex-wrap gap-3 mb-6">

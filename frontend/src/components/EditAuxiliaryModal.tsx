@@ -88,14 +88,14 @@ export function EditAuxiliaryModal({
   useEffect(() => {
     if (auxiliary && open) {
       console.log("Dados do auxiliar para edição:", auxiliary);
-      
+
       // Dados básicos
       setNome(auxiliary.nome || "");
       setTelefone(auxiliary.telefone || "");
       setFoto(auxiliary.foto || "");
       setEmail(auxiliary.email || "");
       setDataNascimento(auxiliary.dataNascimento || "");
-      
+
       // Estado Civil - mapeamento correto
       const estadoCivilMap: { [key: string]: string } = {
         "Solteiro(a)": "solteiro",
@@ -104,10 +104,10 @@ export function EditAuxiliaryModal({
         "Divorciado(a)": "divorciado",
         "Viúvo(a)": "viuvo"
       };
-      
+
       const estadoCivilValue = estadoCivilMap[auxiliary.estadoCivil] || "";
       setEstadoCivil(estadoCivilValue);
-      
+
       // Informações eclesiásticas
       setObreiro(auxiliary.obreiro || false);
       setBatizado(auxiliary.batizado || false);
@@ -244,19 +244,19 @@ export function EditAuxiliaryModal({
       enderecoIgreja,
       conjuge: showSpouseFields
         ? {
-            ...auxiliary?.conjuge,
-            nome: nomeConjuge.trim(),
-            telefone: telefoneConjuge,
-            foto: fotoConjuge,
-            obreiro: obreiroConjuge,
-            batizado: batizadoConjuge,
-          }
+          ...auxiliary?.conjuge,
+          nome: nomeConjuge.trim(),
+          telefone: telefoneConjuge,
+          foto: fotoConjuge,
+          obreiro: obreiroConjuge,
+          batizado: batizadoConjuge,
+        }
         : undefined,
     };
 
     console.log("Dados enviados para atualização:", updatedAuxiliary);
     onSave(updatedAuxiliary);
-    toast.success("Auxiliar atualizado com sucesso!");
+    toast.success("Auxiliar actualizado com sucesso!");
     handleClose();
   };
 
@@ -296,7 +296,7 @@ export function EditAuxiliaryModal({
     setNomeError("");
     setTelefoneError("");
     setTelefoneConjugeError("");
-    
+
     onClose();
   };
 
@@ -311,7 +311,7 @@ export function EditAuxiliaryModal({
             Editar Auxiliar: {auxiliary.nome}
           </DialogTitle>
           <DialogDescription className="text-purple-600">
-            💕 Atualize os dados do auxiliar no sistema.
+            💕 Actualize os dados do auxiliar no sistema.
           </DialogDescription>
         </DialogHeader>
 
@@ -409,23 +409,23 @@ export function EditAuxiliaryModal({
                 <Label>Informações Eclesiásticas</Label>
                 <div className="flex gap-6">
                   <div className="flex items-center gap-2">
-                    <Checkbox 
-                      id="obreiro" 
-                      checked={obreiro} 
-                      onCheckedChange={(checked: any) => setObreiro(checked === true)} 
+                    <Checkbox
+                      id="obreiro"
+                      checked={obreiro}
+                      onCheckedChange={(checked: any) => setObreiro(checked === true)}
                     />
                     <Label htmlFor="obreiro" className="cursor-pointer">
                       É Obreiro
                     </Label>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Checkbox 
-                      id="batizado" 
-                      checked={batizado} 
-                      onCheckedChange={(checked: any) => setBatizado(checked === true)} 
+                    <Checkbox
+                      id="batizado"
+                      checked={batizado}
+                      onCheckedChange={(checked: any) => setBatizado(checked === true)}
                     />
                     <Label htmlFor="batizado" className="cursor-pointer">
-                      É Batizado
+                      É Baptizado
                     </Label>
                   </div>
                 </div>
@@ -445,10 +445,10 @@ export function EditAuxiliaryModal({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="provinciaResidencial">Província *</Label>
-                <Select 
-                  required 
-                  value={enderecoResidencial.provincia} 
-                  onValueChange={(value: any) => setEnderecoResidencial(prev => ({...prev, provincia: value}))}
+                <Select
+                  required
+                  value={enderecoResidencial.provincia}
+                  onValueChange={(value: any) => setEnderecoResidencial(prev => ({ ...prev, provincia: value }))}
                 >
                   <SelectTrigger id="provinciaResidencial" className="bg-[#F7F8FA] border-0">
                     <SelectValue placeholder="Selecione a província" />
@@ -483,7 +483,7 @@ export function EditAuxiliaryModal({
                   placeholder="Nome do município"
                   required
                   value={enderecoResidencial.municipio}
-                  onChange={(e) => setEnderecoResidencial(prev => ({...prev, municipio: e.target.value}))}
+                  onChange={(e) => setEnderecoResidencial(prev => ({ ...prev, municipio: e.target.value }))}
                   className="bg-[#F7F8FA] border-0"
                 />
               </div>
@@ -495,7 +495,7 @@ export function EditAuxiliaryModal({
                   placeholder="Nome do bairro"
                   required
                   value={enderecoResidencial.bairro}
-                  onChange={(e) => setEnderecoResidencial(prev => ({...prev, bairro: e.target.value}))}
+                  onChange={(e) => setEnderecoResidencial(prev => ({ ...prev, bairro: e.target.value }))}
                   className="bg-[#F7F8FA] border-0"
                 />
               </div>
@@ -507,7 +507,7 @@ export function EditAuxiliaryModal({
                   placeholder="Nome da rua"
                   required
                   value={enderecoResidencial.rua}
-                  onChange={(e) => setEnderecoResidencial(prev => ({...prev, rua: e.target.value}))}
+                  onChange={(e) => setEnderecoResidencial(prev => ({ ...prev, rua: e.target.value }))}
                   className="bg-[#F7F8FA] border-0"
                 />
               </div>
@@ -519,7 +519,7 @@ export function EditAuxiliaryModal({
                   placeholder="Nº"
                   required
                   value={enderecoResidencial.numeroCasa}
-                  onChange={(e) => setEnderecoResidencial(prev => ({...prev, numeroCasa: e.target.value}))}
+                  onChange={(e) => setEnderecoResidencial(prev => ({ ...prev, numeroCasa: e.target.value }))}
                   className="bg-[#F7F8FA] border-0"
                 />
               </div>
@@ -530,7 +530,7 @@ export function EditAuxiliaryModal({
                   id="referenciaResidencial"
                   placeholder="Ex: Próximo ao mercado"
                   value={enderecoResidencial.pontoReferencia}
-                  onChange={(e) => setEnderecoResidencial(prev => ({...prev, pontoReferencia: e.target.value}))}
+                  onChange={(e) => setEnderecoResidencial(prev => ({ ...prev, pontoReferencia: e.target.value }))}
                   className="bg-[#F7F8FA] border-0"
                 />
               </div>
@@ -593,23 +593,23 @@ export function EditAuxiliaryModal({
                     <Label>Status Eclesiástico do Cônjuge</Label>
                     <div className="flex gap-6">
                       <div className="flex items-center gap-2">
-                        <Checkbox 
-                          id="obreiroConjuge" 
-                          checked={obreiroConjuge} 
-                          onCheckedChange={(checked: any) => setObreiroConjuge(checked === true)} 
+                        <Checkbox
+                          id="obreiroConjuge"
+                          checked={obreiroConjuge}
+                          onCheckedChange={(checked: any) => setObreiroConjuge(checked === true)}
                         />
                         <Label htmlFor="obreiroConjuge" className="cursor-pointer">
                           É Obreiro
                         </Label>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Checkbox 
-                          id="batizadoConjuge" 
-                          checked={batizadoConjuge} 
-                          onCheckedChange={(checked: any) => setBatizadoConjuge(checked === true)} 
+                        <Checkbox
+                          id="batizadoConjuge"
+                          checked={batizadoConjuge}
+                          onCheckedChange={(checked: any) => setBatizadoConjuge(checked === true)}
                         />
                         <Label htmlFor="batizadoConjuge" className="cursor-pointer">
-                          É Batizado
+                          É Baptizado
                         </Label>
                       </div>
                     </div>
@@ -627,9 +627,9 @@ export function EditAuxiliaryModal({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <div className="space-y-2">
                 <Label htmlFor="igreja">Igreja *</Label>
-                <Select 
-                  required 
-                  value={igreja} 
+                <Select
+                  required
+                  value={igreja}
                   onValueChange={setIgreja}
                 >
                   <SelectTrigger id="igreja" className="bg-[#F7F8FA] border-0">
@@ -647,20 +647,20 @@ export function EditAuxiliaryModal({
 
               <div className="space-y-2">
                 <Label htmlFor="regiao">Região *</Label>
-                <Select 
-                  required 
-                  value={regiao} 
+                <Select
+                  required
+                  value={regiao}
                   onValueChange={setRegiao}
                 >
                   <SelectTrigger id="regiao" className="bg-[#F7F8FA] border-0">
                     <SelectValue placeholder="Selecione a região" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="norte">Norte</SelectItem>
-                    <SelectItem value="sul">Sul</SelectItem>
-                    <SelectItem value="leste">Leste</SelectItem>
-                    <SelectItem value="oeste">Oeste</SelectItem>
-                    <SelectItem value="centro">Centro</SelectItem>
+                    <SelectItem value="Centro">Centro</SelectItem>
+                    <SelectItem value="Norte">Norte</SelectItem>
+                    <SelectItem value="Sul">Sul</SelectItem>
+                    <SelectItem value="Leste">Leste</SelectItem>
+                    <SelectItem value="Oeste">Oeste</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -675,10 +675,10 @@ export function EditAuxiliaryModal({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="provinciaIgreja">Província *</Label>
-                <Select 
-                  required 
-                  value={enderecoIgreja.provincia} 
-                  onValueChange={(value: any) => setEnderecoIgreja(prev => ({...prev, provincia: value}))}
+                <Select
+                  required
+                  value={enderecoIgreja.provincia}
+                  onValueChange={(value: any) => setEnderecoIgreja(prev => ({ ...prev, provincia: value }))}
                 >
                   <SelectTrigger id="provinciaIgreja" className="bg-[#F7F8FA] border-0">
                     <SelectValue placeholder="Selecione a província" />
@@ -713,7 +713,7 @@ export function EditAuxiliaryModal({
                   placeholder="Nome do município"
                   required
                   value={enderecoIgreja.municipio}
-                  onChange={(e) => setEnderecoIgreja(prev => ({...prev, municipio: e.target.value}))}
+                  onChange={(e) => setEnderecoIgreja(prev => ({ ...prev, municipio: e.target.value }))}
                   className="bg-[#F7F8FA] border-0"
                 />
               </div>
@@ -725,7 +725,7 @@ export function EditAuxiliaryModal({
                   placeholder="Nome do bairro"
                   required
                   value={enderecoIgreja.bairro}
-                  onChange={(e) => setEnderecoIgreja(prev => ({...prev, bairro: e.target.value}))}
+                  onChange={(e) => setEnderecoIgreja(prev => ({ ...prev, bairro: e.target.value }))}
                   className="bg-[#F7F8FA] border-0"
                 />
               </div>
@@ -737,7 +737,7 @@ export function EditAuxiliaryModal({
                   placeholder="Nome da rua"
                   required
                   value={enderecoIgreja.rua}
-                  onChange={(e) => setEnderecoIgreja(prev => ({...prev, rua: e.target.value}))}
+                  onChange={(e) => setEnderecoIgreja(prev => ({ ...prev, rua: e.target.value }))}
                   className="bg-[#F7F8FA] border-0"
                 />
               </div>
@@ -749,7 +749,7 @@ export function EditAuxiliaryModal({
                   placeholder="Nº"
                   required
                   value={enderecoIgreja.numeroCasa}
-                  onChange={(e) => setEnderecoIgreja(prev => ({...prev, numeroCasa: e.target.value}))}
+                  onChange={(e) => setEnderecoIgreja(prev => ({ ...prev, numeroCasa: e.target.value }))}
                   className="bg-[#F7F8FA] border-0"
                 />
               </div>
@@ -760,7 +760,7 @@ export function EditAuxiliaryModal({
                   id="referenciaIgreja"
                   placeholder="Ex: Próximo à praça principal"
                   value={enderecoIgreja.pontoReferencia}
-                  onChange={(e) => setEnderecoIgreja(prev => ({...prev, pontoReferencia: e.target.value}))}
+                  onChange={(e) => setEnderecoIgreja(prev => ({ ...prev, pontoReferencia: e.target.value }))}
                   className="bg-[#F7F8FA] border-0"
                 />
               </div>

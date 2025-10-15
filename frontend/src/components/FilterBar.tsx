@@ -37,11 +37,11 @@ export function FilterBar({ filters, onFilterChange, onClearFilters }: FilterBar
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="todas">Todas as regiões</SelectItem>
-              <SelectItem value="norte">Norte</SelectItem>
-              <SelectItem value="sul">Sul</SelectItem>
-              <SelectItem value="leste">Leste</SelectItem>
-              <SelectItem value="oeste">Oeste</SelectItem>
-              <SelectItem value="centro">Centro</SelectItem>
+              <SelectItem value="Centro">Centro</SelectItem>
+              <SelectItem value="Norte">Norte</SelectItem>
+              <SelectItem value="Sul">Sul</SelectItem>
+              <SelectItem value="Leste">Leste</SelectItem>
+              <SelectItem value="Oeste">Oeste</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -58,10 +58,11 @@ export function FilterBar({ filters, onFilterChange, onClearFilters }: FilterBar
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="todos">Todos</SelectItem>
-              <SelectItem value="solteiro">Solteiro(a)</SelectItem>
-              <SelectItem value="casado">Casado(a)</SelectItem>
-              <SelectItem value="divorciado">Divorciado(a)</SelectItem>
-              <SelectItem value="viuvo">Viúvo(a)</SelectItem>
+              <SelectItem value="Solteiro(a)">Solteiro(a)</SelectItem>
+              <SelectItem value="Casado(a)">Casado(a)</SelectItem>
+              <SelectItem value="União Estável">União Estável</SelectItem>
+              <SelectItem value="Divorciado(a)">Divorciado(a)</SelectItem>
+              <SelectItem value="Viúvo(a)">Viúvo(a)</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -78,11 +79,11 @@ export function FilterBar({ filters, onFilterChange, onClearFilters }: FilterBar
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="todas">Todas as igrejas</SelectItem>
-              <SelectItem value="central">Igreja Central</SelectItem>
-              <SelectItem value="nova-esperanca">Igreja Nova Esperança</SelectItem>
-              <SelectItem value="fe-viva">Igreja Fé Viva</SelectItem>
-              <SelectItem value="luz-divina">Igreja Luz Divina</SelectItem>
-              <SelectItem value="amor-perfeito">Igreja Amor Perfeito</SelectItem>
+              <SelectItem value="Igreja Central">Igreja Central</SelectItem>
+              <SelectItem value="Igreja Nova Esperança">Igreja Nova Esperança</SelectItem>
+              <SelectItem value="Igreja Fé Viva">Igreja Fé Viva</SelectItem>
+              <SelectItem value="Igreja Luz Divina">Igreja Luz Divina</SelectItem>
+              <SelectItem value="Igreja Amor Perfeito">Igreja Amor Perfeito</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -121,11 +122,11 @@ export function FilterBar({ filters, onFilterChange, onClearFilters }: FilterBar
 
       {/* Action Buttons */}
       <div className="flex gap-2">
-        <Button className="bg-gradient-to-r from-[#9333EA] to-[#A855F7] hover:from-[#7E22CE] hover:to-[#9333EA] shadow-md shadow-purple-200">
-          <Filter className="w-4 h-4 mr-2" />
-          Aplicar Filtros
-        </Button>
-        <Button variant="outline" onClick={onClearFilters} className="border-purple-200 text-purple-700 hover:bg-purple-50">
+        <Button 
+          variant="outline" 
+          onClick={onClearFilters} 
+          className="border-purple-200 text-purple-700 hover:bg-purple-50"
+        >
           <X className="w-4 h-4 mr-2" />
           Limpar Filtros
         </Button>

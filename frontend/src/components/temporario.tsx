@@ -431,7 +431,7 @@ export function NewAuxiliaryModalX({ open, onClose, onSave, existingAuxiliaries 
                   <div className="flex items-center gap-2">
                     <Checkbox id="batizado" checked={batizado} onCheckedChange={(checked: any) => setBatizado(!!checked)} />
                     <Label htmlFor="batizado" className="cursor-pointer">
-                      É Batizado
+                      É Baptizado
                     </Label>
                   </div>
                 </div>
@@ -624,7 +624,7 @@ export function NewAuxiliaryModalX({ open, onClose, onSave, existingAuxiliaries 
                           onCheckedChange={(checked: any) => setBatizadoConjuge(!!checked)}
                         />
                         <Label htmlFor="batizadoConjuge" className="cursor-pointer">
-                          É Batizado
+                          É Baptizado
                         </Label>
                       </div>
                     </div>

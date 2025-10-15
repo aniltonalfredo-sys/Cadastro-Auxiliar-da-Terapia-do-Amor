@@ -60,7 +60,7 @@ export function AuxiliaryDetailsModal({
                 {auxiliary.batizado && (
                   <Badge className="bg-pink-100 text-pink-800 hover:bg-pink-100">
                     <Droplet className="w-3 h-3 mr-1" />
-                    Batizado
+                    Baptizado
                   </Badge>
                 )}
               </div>
@@ -216,7 +216,7 @@ export function AuxiliaryDetailsModal({
                       {auxiliary.conjuge.batizado && (
                         <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">
                           <Droplet className="w-3 h-3 mr-1" />
-                          Batizado
+                          Baptizado
                         </Badge>
                       )}
                     </div>
@@ -240,7 +240,7 @@ export function AuxiliaryDetailsModal({
           <Separator />
 
           {/* Additional Information */}
-          <div>
+          {/* <div>
             <h3 className="mb-4">Informações Adicionais</h3>
             <div className="bg-[#F7F8FA] rounded-lg p-4 space-y-2">
               {auxiliary.estadoCivil !== "Solteiro(a)" && (
@@ -260,7 +260,7 @@ export function AuxiliaryDetailsModal({
                 <span>Assíduo</span>
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* Action Buttons */}
           <div className="flex justify-end gap-2">

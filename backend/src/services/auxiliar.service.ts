@@ -5,56 +5,92 @@ const prisma = new PrismaClient();
 /**
  * 🔹 Cria um auxiliar completo com transação atômica
  */
+// export const criarAuxiliar = async (dados: any) => {
+//   return await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+//     try {
+//       // Cria os endereços primeiro, se existirem
+//       const enderecoResidencial = dados.enderecoResidencial
+//         ? await tx.endereco.create({
+//             data: {
+//               tipo: "Residencial",
+//               provincia: dados.enderecoResidencial.provincia,
+//               municipio: dados.enderecoResidencial.municipio,
+//               bairro: dados.enderecoResidencial.bairro,
+//               rua: dados.enderecoResidencial.rua,
+//               numeroCasa: dados.enderecoResidencial.numeroCasa,
+//               pontoReferencia: dados.enderecoResidencial.pontoReferencia,
+//             },
+//           })
+//         : null;
+
+//       const enderecoIgreja = dados.enderecoIgreja
+//         ? await tx.endereco.create({
+//             data: {
+//               tipo: "Igreja",
+//               provincia: dados.enderecoIgreja.provincia,
+//               municipio: dados.enderecoIgreja.municipio,
+//               bairro: dados.enderecoIgreja.bairro,
+//               rua: dados.enderecoIgreja.rua,
+//               numeroCasa: dados.enderecoIgreja.numeroCasa,
+//               pontoReferencia: dados.enderecoIgreja.pontoReferencia,
+//             },
+//           })
+//         : null;
+
+//       // Cria o cônjuge se houver
+//       const conjuge = dados.conjuge
+//         ? await tx.conjuge.create({
+//             data: {
+//               nome: dados.conjuge.nome,
+//               telefone: dados.conjuge.telefone,
+//               foto: dados.conjuge.foto || null,
+//               obreiro: dados.conjuge.obreiro === true || dados.conjuge.obreiro === "true",
+//               batizado: dados.conjuge.batizado === true || dados.conjuge.batizado === "true",
+//             },
+//           })
+//         : null;
+
+//       // Cria o auxiliar principal com relacionamentos
+//       const novoAuxiliar = await tx.auxiliar.create({
+//         data: {
+//           nome: dados.nome,
+//           foto: dados.foto || null,
+//           igreja: dados.igreja,
+//           regiao: dados.regiao,
+//           estadoCivil: dados.estadoCivil,
+//           telefone: dados.telefone,
+//           obreiro: dados.obreiro === true || dados.obreiro === "true",
+//           batizado: dados.batizado === true || dados.batizado === "true",
+//           dataCadastro: dados.dataCadastro ? new Date(dados.dataCadastro) : new Date(),
+//           enderecoResidencialId: enderecoResidencial?.id,
+//           enderecoIgrejaId: enderecoIgreja?.id,
+//           conjugeId: conjuge?.id,
+//         },
+//         include: {
+//           enderecoResidencial: true,
+//           enderecoIgreja: true,
+//           conjuge: true,
+//         },
+//       });
+
+//       return novoAuxiliar;
+//     } catch (error) {
+//       console.error("Erro ao criar auxiliar:", error);
+//       throw new Error("Erro ao criar auxiliar, operação revertida.");
+//     }
+//   });
+// };
+
 export const criarAuxiliar = async (dados: any) => {
   return await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     try {
-      // Cria os endereços primeiro, se existirem
-      const enderecoResidencial = dados.enderecoResidencial
-        ? await tx.endereco.create({
-            data: {
-              tipo: "Residencial",
-              provincia: dados.enderecoResidencial.provincia,
-              municipio: dados.enderecoResidencial.municipio,
-              bairro: dados.enderecoResidencial.bairro,
-              rua: dados.enderecoResidencial.rua,
-              numeroCasa: dados.enderecoResidencial.numeroCasa,
-              pontoReferencia: dados.enderecoResidencial.pontoReferencia,
-            },
-          })
-        : null;
-
-      const enderecoIgreja = dados.enderecoIgreja
-        ? await tx.endereco.create({
-            data: {
-              tipo: "Igreja",
-              provincia: dados.enderecoIgreja.provincia,
-              municipio: dados.enderecoIgreja.municipio,
-              bairro: dados.enderecoIgreja.bairro,
-              rua: dados.enderecoIgreja.rua,
-              numeroCasa: dados.enderecoIgreja.numeroCasa,
-              pontoReferencia: dados.enderecoIgreja.pontoReferencia,
-            },
-          })
-        : null;
-
-      // Cria o cônjuge se houver
-      const conjuge = dados.conjuge
-        ? await tx.conjuge.create({
-            data: {
-              nome: dados.conjuge.nome,
-              telefone: dados.conjuge.telefone,
-              foto: dados.conjuge.foto || null,
-              obreiro: dados.conjuge.obreiro === true || dados.conjuge.obreiro === "true",
-              batizado: dados.conjuge.batizado === true || dados.conjuge.batizado === "true",
-            },
-          })
-        : null;
-
-      // Cria o auxiliar principal com relacionamentos
+      // Criar o auxiliar com os relacionamentos aninhados
       const novoAuxiliar = await tx.auxiliar.create({
         data: {
           nome: dados.nome,
           foto: dados.foto || null,
+          email: dados.email || null,
+          dataNascimento: dados.dataNascimento ? new Date(dados.dataNascimento) : new Date(),
           igreja: dados.igreja,
           regiao: dados.regiao,
           estadoCivil: dados.estadoCivil,
@@ -62,9 +98,42 @@ export const criarAuxiliar = async (dados: any) => {
           obreiro: dados.obreiro === true || dados.obreiro === "true",
           batizado: dados.batizado === true || dados.batizado === "true",
           dataCadastro: dados.dataCadastro ? new Date(dados.dataCadastro) : new Date(),
-          enderecoResidencialId: enderecoResidencial?.id,
-          enderecoIgrejaId: enderecoIgreja?.id,
-          conjugeId: conjuge?.id,
+          
+          // Criar endereços aninhados
+          enderecoResidencial: dados.enderecoResidencial ? {
+            create: {
+              tipo: "Residencial",
+              provincia: dados.enderecoResidencial.provincia,
+              municipio: dados.enderecoResidencial.municipio,
+              bairro: dados.enderecoResidencial.bairro,
+              rua: dados.enderecoResidencial.rua,
+              numeroCasa: dados.enderecoResidencial.numeroCasa,
+              pontoReferencia: dados.enderecoResidencial.pontoReferencia,
+            }
+          } : undefined,
+          
+          enderecoIgreja: dados.enderecoIgreja ? {
+            create: {
+              tipo: "Igreja",
+              provincia: dados.enderecoIgreja.provincia,
+              municipio: dados.enderecoIgreja.municipio,
+              bairro: dados.enderecoIgreja.bairro,
+              rua: dados.enderecoIgreja.rua,
+              numeroCasa: dados.enderecoIgreja.numeroCasa,
+              pontoReferencia: dados.enderecoIgreja.pontoReferencia,
+            }
+          } : undefined,
+          
+          // Criar cônjuge aninhado
+          conjuge: dados.conjuge ? {
+            create: {
+              nome: dados.conjuge.nome,
+              telefone: dados.conjuge.telefone,
+              foto: dados.conjuge.foto || null,
+              obreiro: dados.conjuge.obreiro === true || dados.conjuge.obreiro === "true",
+              batizado: dados.conjuge.batizado === true || dados.conjuge.batizado === "true",
+            }
+          } : undefined,
         },
         include: {
           enderecoResidencial: true,
