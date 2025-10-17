@@ -1,29 +1,289 @@
 import { useState, useMemo, useEffect } from "react";
+import { LoginPage } from "./components/LoginPage";
 import { FilterBar } from "./components/FilterBar";
 import { AuxiliariesTable, type Auxiliary } from "./components/AuxiliariesTable";
 import { AuxiliaryDetailsModal } from "./components/AuxiliaryDetailsModal";
 import { NewAuxiliaryModal } from "./components/NewAuxiliaryModal";
 import { EditAuxiliaryModal } from "./components/EditAuxiliaryModal";
+import { CreateActivityModal } from "./components/CreateActivityModal";
+import { ViewActivitiesModal, type Activity } from "./components/ViewActivitiesModal";
+import { ActivityDetailsModal } from "./components/ActivityDetailsModal";
+import { AuxiliaryRegistrationCard } from "./components/AuxiliaryRegistrationCard";
+import { PrintAuxiliariesList } from "./components/PrintAuxiliariesList";
+import { PrintActivityParticipants } from "./components/PrintActivityParticipants";
 import { StatsCard } from "./components/StatsCard";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
 import { Toaster, toast } from "sonner";
-import {
-  UserPlus,
-  FileSpreadsheet,
-  Database,
-  Printer,
-  Users,
-  CheckCircle,
+import { 
+  UserPlus, 
+  FileSpreadsheet, 
+  Database, 
+  Printer, 
+  Users, 
+  CheckCircle, 
   Droplet,
   TrendingUp,
   Heart,
-  Search
+  Search,
+  CalendarPlus,
+  CalendarDays,
+  LogOut
 } from "lucide-react";
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
-import { actualizarAuxiliar, criarAuxiliar, listarAuxiliares } from "./api/api";
+import { listarAuxiliares } from "../../../frontend-auxiliares/src/api/api";
+import { actualizarAuxiliar, criarAuxiliar } from "./api/api";
+
+// Initial mock data
+// const initialAuxiliaries: Auxiliary[] = [
+//   {
+//     id: "1",
+//     foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Maria",
+//     nome: "Maria Silva Santos",
+//     igreja: "Igreja Central",
+//     regiao: "Centro",
+//     estadoCivil: "Solteiro(a)",
+//     telefone: "+244 923 456 789",
+//     obreiro: true,
+//     batizado: true,
+//     dataCadastro: "15/01/2024",
+//     enderecoResidencial: {
+//       provincia: "Luanda",
+//       municipio: "Luanda",
+//       bairro: "Maculusso",
+//       rua: "Rua das Flores",
+//       numeroCasa: "123",
+//       pontoReferencia: "Próximo ao Mercado Central",
+//     },
+//     enderecoIgreja: {
+//       provincia: "Luanda",
+//       municipio: "Luanda",
+//       bairro: "Maianga",
+//       rua: "Av. 4 de Fevereiro",
+//       numeroCasa: "1000",
+//       pontoReferencia: "Em frente ao Banco BFA",
+//     },
+//   },
+//   {
+//     id: "2",
+//     foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Joao",
+//     nome: "João Pedro Oliveira",
+//     igreja: "Igreja Nova Esperança",
+//     regiao: "Norte",
+//     estadoCivil: "Solteiro(a)",
+//     telefone: "+244 945 678 901",
+//     obreiro: false,
+//     batizado: true,
+//     dataCadastro: "20/01/2024",
+//     enderecoResidencial: {
+//       provincia: "Luanda",
+//       municipio: "Viana",
+//       bairro: "Zango",
+//       rua: "Rua do Progresso",
+//       numeroCasa: "456",
+//       pontoReferencia: "Perto da Escola Primária",
+//     },
+//     enderecoIgreja: {
+//       provincia: "Luanda",
+//       municipio: "Viana",
+//       bairro: "Zango II",
+//       rua: "Av. Principal",
+//       numeroCasa: "2500",
+//       pontoReferencia: "Ao lado da Farmácia",
+//     },
+//   },
+//   {
+//     id: "3",
+//     foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Ana",
+//     nome: "Ana Paula Costa",
+//     igreja: "Igreja Fé Viva",
+//     regiao: "Sul",
+//     estadoCivil: "Casado(a)",
+//     telefone: "+244 912 345 678",
+//     obreiro: true,
+//     batizado: true,
+//     dataCadastro: "22/01/2024",
+//     enderecoResidencial: {
+//       provincia: "Benguela",
+//       municipio: "Benguela",
+//       bairro: "Praia Morena",
+//       rua: "Rua da Liberdade",
+//       numeroCasa: "789",
+//       pontoReferencia: "Próximo à Praia",
+//     },
+//     enderecoIgreja: {
+//       provincia: "Benguela",
+//       municipio: "Benguela",
+//       bairro: "Centro",
+//       rua: "Av. Norton de Matos",
+//       numeroCasa: "1500",
+//       pontoReferencia: "Em frente ao Hospital",
+//     },
+//     conjuge: {
+//       nome: "Roberto Costa",
+//       telefone: "+244 912 345 679",
+//       foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Roberto",
+//       obreiro: true,
+//       batizado: true,
+//     },
+//   },
+//   {
+//     id: "4",
+//     foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Carlos",
+//     nome: "Carlos Eduardo Souza",
+//     igreja: "Igreja Luz Divina",
+//     regiao: "Leste",
+//     estadoCivil: "Solteiro(a)",
+//     telefone: "+244 934 567 890",
+//     obreiro: false,
+//     batizado: false,
+//     dataCadastro: "25/01/2024",
+//     enderecoResidencial: {
+//       provincia: "Huíla",
+//       municipio: "Lubango",
+//       bairro: "Comercial",
+//       rua: "Rua Sá da Bandeira",
+//       numeroCasa: "321",
+//       pontoReferencia: "Ao lado do Supermercado",
+//     },
+//     enderecoIgreja: {
+//       provincia: "Huíla",
+//       municipio: "Lubango",
+//       bairro: "Lajes",
+//       rua: "Rua Principal",
+//       numeroCasa: "800",
+//       pontoReferencia: "Próximo à Praça",
+//     },
+//   },
+//   {
+//     id: "5",
+//     foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Beatriz",
+//     nome: "Beatriz Fernandes Lima",
+//     igreja: "Igreja Amor Perfeito",
+//     regiao: "Oeste",
+//     estadoCivil: "Divorciado(a)",
+//     telefone: "+244 956 789 012",
+//     obreiro: true,
+//     batizado: true,
+//     dataCadastro: "28/01/2024",
+//     enderecoResidencial: {
+//       provincia: "Huambo",
+//       municipio: "Huambo",
+//       bairro: "Benfica",
+//       rua: "Av. da Independência",
+//       numeroCasa: "654",
+//       pontoReferencia: "Perto do Centro Comercial",
+//     },
+//     enderecoIgreja: {
+//       provincia: "Huambo",
+//       municipio: "Huambo",
+//       bairro: "Centro",
+//       rua: "Rua Dr. António Agostinho Neto",
+//       numeroCasa: "1200",
+//       pontoReferencia: "Ao lado da Câmara Municipal",
+//     },
+//   },
+//   {
+//     id: "6",
+//     foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Pedro",
+//     nome: "Pedro Henrique Almeida",
+//     igreja: "Igreja Central",
+//     regiao: "Centro",
+//     estadoCivil: "Solteiro(a)",
+//     telefone: "+244 967 890 123",
+//     obreiro: false,
+//     batizado: true,
+//     dataCadastro: "01/02/2024",
+//     enderecoResidencial: {
+//       provincia: "Luanda",
+//       municipio: "Luanda",
+//       bairro: "Alvalade",
+//       rua: "Rua Rainha Ginga",
+//       numeroCasa: "987",
+//       pontoReferencia: "Próximo ao Clube",
+//     },
+//     enderecoIgreja: {
+//       provincia: "Luanda",
+//       municipio: "Luanda",
+//       bairro: "Maianga",
+//       rua: "Av. 4 de Fevereiro",
+//       numeroCasa: "1000",
+//       pontoReferencia: "Em frente ao Banco BFA",
+//     },
+//   },
+//   {
+//     id: "7",
+//     foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Julia",
+//     nome: "Julia Cristina Rocha",
+//     igreja: "Igreja Nova Esperança",
+//     regiao: "Norte",
+//     estadoCivil: "Casado(a)",
+//     telefone: "+244 978 901 234",
+//     obreiro: true,
+//     batizado: true,
+//     dataCadastro: "05/02/2024",
+//     enderecoResidencial: {
+//       provincia: "Cabinda",
+//       municipio: "Cabinda",
+//       bairro: "Marien Ngouabi",
+//       rua: "Rua da Amizade",
+//       numeroCasa: "555",
+//       pontoReferencia: "Próximo ao Porto",
+//     },
+//     enderecoIgreja: {
+//       provincia: "Cabinda",
+//       municipio: "Cabinda",
+//       bairro: "Centro",
+//       rua: "Av. Principal",
+//       numeroCasa: "2500",
+//       pontoReferencia: "Ao lado da Biblioteca",
+//     },
+//     conjuge: {
+//       nome: "Marcelo Rocha Silva",
+//       telefone: "+244 978 901 235",
+//       foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Marcelo",
+//       obreiro: false,
+//       batizado: true,
+//     },
+//   },
+//   {
+//     id: "8",
+//     foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Lucas",
+//     nome: "Lucas Vieira Martins",
+//     igreja: "Igreja Fé Viva",
+//     regiao: "Sul",
+//     estadoCivil: "Solteiro(a)",
+//     telefone: "+244 989 012 345",
+//     obreiro: false,
+//     batizado: false,
+//     dataCadastro: "08/02/2024",
+//     enderecoResidencial: {
+//       provincia: "Namibe",
+//       municipio: "Moçâmedes",
+//       bairro: "Praia Amélia",
+//       rua: "Rua do Mar",
+//       numeroCasa: "2222",
+//       pontoReferencia: "Próximo ao Farol",
+//     },
+//     enderecoIgreja: {
+//       provincia: "Namibe",
+//       municipio: "Moçâmedes",
+//       bairro: "Centro",
+//       rua: "Av. da República",
+//       numeroCasa: "1500",
+//       pontoReferencia: "Em frente à Delegação",
+//     },
+//   },
+// ];
+
+// Credenciais de login (NOTA: Em produção real, isso deveria ser gerenciado no backend)
+const ADMIN_USERNAME = "admin";
+const ADMIN_PASSWORD = "terapiadoamor2024";
 
 export default function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [auxiliaries, setAuxiliaries] = useState<Auxiliary[]>([]);
+  // const [auxiliaries, setAuxiliaries] = useState<Auxiliary[]>(initialAuxiliaries);
+  const [activities, setActivities] = useState<Activity[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({
     regiao: "todas",
@@ -33,16 +293,30 @@ export default function App() {
     apenasBatizados: false,
   });
   const [selectedAuxiliary, setSelectedAuxiliary] = useState<Auxiliary | null>(null);
+  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isNewAuxiliaryModalOpen, setIsNewAuxiliaryModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [auxiliares, setAuxiliares] = useState<Auxiliary[]>([]);
+  const [isCreateActivityModalOpen, setIsCreateActivityModalOpen] = useState(false);
+  const [isViewActivitiesModalOpen, setIsViewActivitiesModalOpen] = useState(false);
+  const [isActivityDetailsModalOpen, setIsActivityDetailsModalOpen] = useState(false);
+  const [auxiliaryToPrint, setAuxiliaryToPrint] = useState<Auxiliary | null>(null);
+  const [shouldPrintList, setShouldPrintList] = useState(false);
+  const [activityToPrint, setActivityToPrint] = useState<Activity | null>(null);
+
+  // Check localStorage for saved session
+  useEffect(() => {
+    const savedAuth = localStorage.getItem("terapia_auth");
+    if (savedAuth === "authenticated") {
+      setIsAuthenticated(true);
+    }
+  }, []);
 
   useEffect(() => {
     listarAuxiliares()
       .then((data) => {
         console.log("Dados recebidos no App:", data);
-        setAuxiliares(data);
+        setAuxiliaries(data);
       })
       .catch((error) => {
         console.error("Erro ao buscar auxiliares:", error);
@@ -52,7 +326,7 @@ export default function App() {
 
   // Filter and search logic
   const filteredAuxiliaries = useMemo(() => {
-    return auxiliares.filter((aux) => {
+    return auxiliaries.filter((aux) => {
       // Search filter
       if (searchTerm) {
         const searchLower = searchTerm.toLowerCase();
@@ -89,39 +363,10 @@ export default function App() {
       if (filters.apenasBatizados && !aux.batizado) {
         return false;
       }
-      
+
       return true;
     });
-  }, [auxiliares, searchTerm, filters]);
-
-  const handleSaveAuxiliar = async (novoAuxiliar: Auxiliary) => {
-    try {
-      console.log("Dados sendo enviados: ", novoAuxiliar)
-      const res = await criarAuxiliar(novoAuxiliar);
-      setAuxiliares((prev) => [...prev, res]);
-      toast.success("Auxiliar criado com sucesso!");
-      setIsNewAuxiliaryModalOpen(false);
-    } catch(error: any) {
-      toast.error(`Erro ao salvar auxiliar: ${error.message}`);
-      console.error("Erro ao salvar auxiliar:", error);
-    }
-  }
-
-  const handleUpdateAuxiliar = async (updatedAux: Auxiliary) => {
-    try {
-      if (!updatedAux.id) {
-        throw new Error("ID do auxiliar não encontrado");
-      }
-      
-      const res = await actualizarAuxiliar(updatedAux.id, updatedAux);
-      setAuxiliares((prev) => prev.map((aux) => aux.id === updatedAux.id ? res : aux));
-      toast.success("Auxiliar actualizado com sucesso!");
-      setIsEditModalOpen(false);
-    } catch(error: any) {
-      toast.error(`Erro ao atualizar auxiliar: ${error.message}`);
-      console.error("Erro ao atualizar auxiliar:", error);
-    }
-  }
+  }, [searchTerm, filters, auxiliaries]);
 
   // Statistics
   const stats = useMemo(() => {
@@ -133,16 +378,33 @@ export default function App() {
     return { total, obreiros, batizados, crescimento };
   }, [filteredAuxiliaries]);
 
-  // Chart data
-  const chartData = [
-    { name: "Obreiros", value: stats.obreiros, color: "#C084FC" },
-    { name: "Não Obreiros", value: stats.total - stats.obreiros, color: "#F3E8FF" },
-  ];
+  // Login handler
+  const handleLogin = (username: string, password: string) => {
+    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+      setIsAuthenticated(true);
+      localStorage.setItem("terapia_auth", "authenticated");
+      toast.success("Login realizado com sucesso! 💜");
+    } else {
+      toast.error("Usuário ou senha incorretos. Tente novamente.");
+    }
+  };
 
-  const chartData2 = [
-    { name: "Batizados", value: stats.batizados, color: "#9333EA" },
-    { name: "Não Batizados", value: stats.total - stats.batizados, color: "#FAF5FF" },
-  ];
+  // Logout handler
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    localStorage.removeItem("terapia_auth");
+    toast.success("Logout realizado com sucesso!");
+  };
+
+  // If not authenticated, show login page
+  if (!isAuthenticated) {
+    return (
+      <>
+        <Toaster position="top-right" richColors />
+        <LoginPage onLogin={handleLogin} />
+      </>
+    );
+  }
 
   const handleClearFilters = () => {
     setFilters({
@@ -152,7 +414,6 @@ export default function App() {
       apenasObreiros: false,
       apenasBatizados: false,
     });
-    setSearchTerm("");
     toast.success("Filtros limpos com sucesso!");
   };
 
@@ -166,8 +427,45 @@ export default function App() {
     setIsEditModalOpen(true);
   };
 
-  const handleDelete = (auxiliary: Auxiliary) => {
-    toast.error(`Função de exclusão em desenvolvimento para ${auxiliary.nome}`);
+  const handleDelete =  (auxiliary: Auxiliary) => {
+    if (confirm(`Tem certeza que deseja excluir ${auxiliary.nome}?`)) {
+      setAuxiliaries(prev => prev.filter(aux => aux.id !== auxiliary.id));
+      toast.success(`${auxiliary.nome} foi excluído com sucesso!`);
+    }
+  };
+
+  const handleAddAuxiliary = async (newAuxiliary: Auxiliary) => {
+    // setAuxiliaries(prev => [...prev, newAuxiliary]);
+    // toast.success("Auxiliar cadastrado com sucesso!");
+    try{
+      console.log("Dados sendo enviados: ", newAuxiliary)
+      const res = await criarAuxiliar(newAuxiliary);
+      setAuxiliaries((prev)=>[...prev, res]);
+    }catch (error: any) {
+      toast.error(`Erro ao salvar auxiliar: ${error.message}`);
+      console.error("Erro ao salvar auxiliar:", error);
+    }
+  };
+
+  const handleUpdateAuxiliary = async (updatedAuxiliary: Auxiliary) => {
+    // setAuxiliaries(prev => 
+    //   prev.map(aux => aux.id === updatedAuxiliary.id ? updatedAuxiliary : aux)
+    // );
+    // toast.success("Auxiliar atualizado com sucesso!");
+    try {
+      if (!updatedAuxiliary.id) {
+        throw new Error("ID do auxiliar não encontrado");
+      }
+
+      const res = await actualizarAuxiliar(updatedAuxiliary.id.toString(), updatedAuxiliary);
+      setAuxiliaries((prev) => prev.map((aux) => aux.id === updatedAuxiliary.id ? res : aux));
+      toast.success("Auxiliar actualizado com sucesso!");
+      setIsEditModalOpen(false);
+    } catch (error: any) {
+      toast.error(`Erro ao atualizar auxiliar: ${error.message}`);
+      console.error("Erro ao atualizar auxiliar:", error);
+    }
+
   };
 
   const handleExportExcel = () => {
@@ -179,14 +477,52 @@ export default function App() {
   };
 
   const handlePrint = () => {
-    toast.success("Preparando impressão...");
-    window.print();
+    toast.success("Preparando impressão da lista...");
+    setShouldPrintList(true);
+    setTimeout(() => {
+      window.print();
+      setShouldPrintList(false);
+    }, 100);
+  };
+
+  const handlePrintCard = (auxiliary: Auxiliary) => {
+    toast.success(`Preparando ficha de ${auxiliary.nome}...`);
+    setAuxiliaryToPrint(auxiliary);
+    setTimeout(() => {
+      window.print();
+      setAuxiliaryToPrint(null);
+    }, 100);
+  };
+
+  const handleSaveActivity = (activity: Activity) => {
+    setActivities(prev => [...prev, activity]);
+  };
+
+  const handleViewActivityDetails = (activity: Activity) => {
+    setSelectedActivity(activity);
+    setIsActivityDetailsModalOpen(true);
+  };
+
+  const handlePrintActivityParticipants = (activity: Activity) => {
+    toast.success(`Preparando lista de participantes...`);
+    setActivityToPrint(activity);
+    setTimeout(() => {
+      window.print();
+      setActivityToPrint(null);
+    }, 100);
+  };
+
+  const handleDeleteActivity = (activity: Activity) => {
+    if (confirm(`Tem certeza que deseja excluir a atividade "${activity.name}"?`)) {
+      setActivities(prev => prev.filter(act => act.id !== activity.id));
+      toast.success(`Atividade "${activity.name}" foi excluída com sucesso!`);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50/50 via-pink-50/30 to-white">
       <Toaster position="top-right" richColors />
-
+      
       {/* Header */}
       <header className="bg-gradient-to-r from-white via-purple-50/30 to-pink-50/30 border-b border-purple-100 sticky top-0 z-10 backdrop-blur-sm">
         <div className="container mx-auto px-6 py-4">
@@ -197,9 +533,7 @@ export default function App() {
                 <Heart className="w-7 h-7 text-white" fill="white" />
               </div>
               <div>
-                <h2 className="bg-gradient-to-r from-[#9333EA] to-[#C084FC] bg-clip-text text-transparent text-xl font-bold">
-                  Terapia do Amor
-                </h2>
+                <h2 className="bg-gradient-to-r from-[#9333EA] to-[#C084FC] bg-clip-text text-transparent">Terapia do Amor</h2>
                 <p className="text-xs text-purple-400">💕 Painel de Auxiliares</p>
               </div>
             </div>
@@ -217,6 +551,16 @@ export default function App() {
                 />
               </div>
             </div>
+
+            {/* Logout Button */}
+            <Button
+              variant="outline"
+              onClick={handleLogout}
+              className="border-purple-200 text-purple-700 hover:bg-purple-50 hover:border-purple-300 shrink-0"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Sair
+            </Button>
           </div>
         </div>
       </header>
@@ -227,7 +571,7 @@ export default function App() {
         <div className="mb-8 relative">
           <div className="absolute -top-4 -left-4 text-6xl opacity-10">💕</div>
           <div className="absolute -top-2 right-20 text-4xl opacity-10">💜</div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-[#9333EA] to-[#C084FC] bg-clip-text text-transparent mb-2">
+          <h1 className="bg-gradient-to-r from-[#9333EA] to-[#C084FC] bg-clip-text text-transparent">
             Auxiliares Cadastrados
           </h1>
           <p className="text-purple-600 flex items-center gap-2">
@@ -268,71 +612,14 @@ export default function App() {
           />
         </div>
 
-        {/* Charts - Descomente se quiser usar */}
-        {stats.total > 0 && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <div className="bg-white/80 backdrop-blur rounded-2xl border border-purple-100 p-6 shadow-sm shadow-purple-100">
-              <h3 className="mb-4 text-purple-900 flex items-center gap-2">
-                <Heart className="w-5 h-5 text-purple-400 fill-purple-200" />
-                Distribuição de Obreiros
-              </h3>
-              <ResponsiveContainer width="100%" height={200}>
-                <PieChart>
-                  <Pie
-                    data={chartData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={80}
-                    paddingAngle={5}
-                    dataKey="value"
-                  >
-                    {chartData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
 
-            <div className="bg-white/80 backdrop-blur rounded-2xl border border-purple-100 p-6 shadow-sm shadow-purple-100">
-              <h3 className="mb-4 text-purple-900 flex items-center gap-2">
-                <Heart className="w-5 h-5 text-purple-400 fill-purple-200" />
-                Distribuição de Batizados
-              </h3>
-              <ResponsiveContainer width="100%" height={200}>
-                <PieChart>
-                  <Pie
-                    data={chartData2}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={80}
-                    paddingAngle={5}
-                    dataKey="value"
-                  >
-                    {chartData2.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        )}
 
-        {/* Filters - Descomente se quiser usar */}
-        {auxiliares.length > 0 && (
-          <FilterBar
-            filters={filters}
-            onFilterChange={setFilters}
-            onClearFilters={handleClearFilters}
-          />
-        )}
+        {/* Filters */}
+        <FilterBar
+          filters={filters}
+          onFilterChange={setFilters}
+          onClearFilters={handleClearFilters}
+        />
 
         {/* Action Buttons */}
         <div className="flex flex-wrap gap-3 mb-6">
@@ -343,86 +630,50 @@ export default function App() {
             <UserPlus className="w-4 h-4 mr-2" />
             Novo Auxiliar
           </Button>
-          
-          {/* {filteredAuxiliaries.length > 0 && (
-            <>
-              <Button 
-                variant="outline" 
-                onClick={handleExportExcel} 
-                className="border-purple-200 text-purple-700 hover:bg-purple-50 hover:border-purple-300"
-              >
-                <FileSpreadsheet className="w-4 h-4 mr-2" />
-                Exportar para Excel
-              </Button>
-              <Button 
-                variant="outline" 
-                onClick={handleExportSQL} 
-                className="border-purple-200 text-purple-700 hover:bg-purple-50 hover:border-purple-300"
-              >
-                <Database className="w-4 h-4 mr-2" />
-                Exportar para SQL
-              </Button>
-              <Button 
-                variant="outline" 
-                onClick={handlePrint} 
-                className="border-purple-200 text-purple-700 hover:bg-purple-50 hover:border-purple-300"
-              >
-                <Printer className="w-4 h-4 mr-2" />
-                Imprimir Lista
-              </Button>
-            </>
-          )} */}
-          
-          {(searchTerm || filters.regiao !== "todas" || filters.estadoCivil !== "todos" || filters.igreja !== "todas" || filters.apenasObreiros || filters.apenasBatizados) && (
-            <Button 
-              variant="outline" 
-              onClick={handleClearFilters}
-              className="border-red-200 text-red-700 hover:bg-red-50 hover:border-red-300"
-            >
-              Limpar Filtros
-            </Button>
-          )}
+          <Button
+            className="bg-gradient-to-r from-[#EC4899] to-[#F472B6] hover:from-[#DB2777] hover:to-[#EC4899] shadow-lg shadow-pink-200"
+            onClick={() => setIsCreateActivityModalOpen(true)}
+          >
+            <CalendarPlus className="w-4 h-4 mr-2" />
+            Criar Atividade
+          </Button>
+          <Button
+            className="bg-gradient-to-r from-[#A855F7] to-[#C084FC] hover:from-[#9333EA] hover:to-[#A855F7] shadow-lg shadow-purple-200"
+            onClick={() => setIsViewActivitiesModalOpen(true)}
+          >
+            <CalendarDays className="w-4 h-4 mr-2" />
+            Ver Atividades
+          </Button>
+          <Button variant="outline" onClick={handleExportExcel} className="border-purple-200 text-purple-700 hover:bg-purple-50 hover:border-purple-300">
+            <FileSpreadsheet className="w-4 h-4 mr-2" />
+            Exportar para Excel
+          </Button>
+          <Button variant="outline" onClick={handleExportSQL} className="border-purple-200 text-purple-700 hover:bg-purple-50 hover:border-purple-300">
+            <Database className="w-4 h-4 mr-2" />
+            Exportar para SQL
+          </Button>
+          <Button variant="outline" onClick={handlePrint} className="border-purple-200 text-purple-700 hover:bg-purple-50 hover:border-purple-300">
+            <Printer className="w-4 h-4 mr-2" />
+            Imprimir Lista
+          </Button>
         </div>
 
-        {/* Table Info */}
+        {/* Table */}
         <div className="mb-4">
           <p className="text-sm text-purple-600 flex items-center gap-2">
             <Heart className="w-3 h-3 fill-purple-300 text-purple-300" />
             Mostrando <span className="font-medium text-purple-700">{filteredAuxiliaries.length}</span> de{" "}
-            <span className="font-medium text-purple-700">{auxiliares.length}</span> auxiliares
+            <span className="font-medium text-purple-700">{auxiliaries.length}</span> auxiliares
           </p>
         </div>
 
-        {/* Table */}
-        {filteredAuxiliaries.length > 0 ? (
-          <AuxiliariesTable
-            auxiliaries={filteredAuxiliaries}
-            onView={handleView}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
-        ) : (
-          <div className="text-center py-12 bg-white/50 rounded-2xl border border-purple-100">
-            <Heart className="w-12 h-12 text-purple-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-purple-900 mb-2">
-              Nenhum auxiliar encontrado
-            </h3>
-            <p className="text-purple-600 mb-4">
-              {auxiliares.length === 0 
-                ? "Comece cadastrando o primeiro auxiliar."
-                : "Tente ajustar os filtros ou termos de pesquisa."}
-            </p>
-            {auxiliares.length === 0 && (
-              <Button
-                className="bg-gradient-to-r from-[#9333EA] to-[#A855F7] hover:from-[#7E22CE] hover:to-[#9333EA]"
-                onClick={() => setIsNewAuxiliaryModalOpen(true)}
-              >
-                <UserPlus className="w-4 h-4 mr-2" />
-                Cadastrar Primeiro Auxiliar
-              </Button>
-            )}
-          </div>
-        )}
+        <AuxiliariesTable
+          auxiliaries={filteredAuxiliaries}
+          onView={handleView}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onPrintCard={handlePrintCard}
+        />
       </main>
 
       {/* Modals */}
@@ -436,17 +687,61 @@ export default function App() {
       <NewAuxiliaryModal
         open={isNewAuxiliaryModalOpen}
         onClose={() => setIsNewAuxiliaryModalOpen(false)}
-        existingAuxiliaries={auxiliares}
-        onSave={handleSaveAuxiliar}
+        existingAuxiliaries={auxiliaries}
+        onSave={handleAddAuxiliary}
       />
 
       <EditAuxiliaryModal
         open={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
-        existingAuxiliaries={auxiliares}
+        existingAuxiliaries={auxiliaries}
         auxiliary={selectedAuxiliary}
-        onSave={handleUpdateAuxiliar}
+        onSave={handleUpdateAuxiliary}
       />
+
+      <CreateActivityModal
+        open={isCreateActivityModalOpen}
+        onClose={() => setIsCreateActivityModalOpen(false)}
+        auxiliaries={auxiliaries}
+        onSaveActivity={handleSaveActivity}
+      />
+
+      <ViewActivitiesModal
+        open={isViewActivitiesModalOpen}
+        onClose={() => setIsViewActivitiesModalOpen(false)}
+        activities={activities}
+        onViewDetails={handleViewActivityDetails}
+        onPrintParticipants={handlePrintActivityParticipants}
+        onDeleteActivity={handleDeleteActivity}
+      />
+
+      <ActivityDetailsModal
+        open={isActivityDetailsModalOpen}
+        onClose={() => setIsActivityDetailsModalOpen(false)}
+        activity={selectedActivity}
+        auxiliaries={auxiliaries}
+        onPrintParticipants={() => {
+          if (selectedActivity) {
+            handlePrintActivityParticipants(selectedActivity);
+          }
+        }}
+      />
+
+      {/* Print Components */}
+      {auxiliaryToPrint && (
+        <AuxiliaryRegistrationCard auxiliary={auxiliaryToPrint} />
+      )}
+      
+      {shouldPrintList && (
+        <PrintAuxiliariesList auxiliaries={filteredAuxiliaries} />
+      )}
+
+      {activityToPrint && (
+        <PrintActivityParticipants
+          activity={activityToPrint}
+          participants={auxiliaries.filter(aux => activityToPrint.participantIds.includes(aux.id))}
+        />
+      )}
     </div>
   );
 }

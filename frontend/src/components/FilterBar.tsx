@@ -17,6 +17,26 @@ interface FilterBarProps {
 }
 
 export function FilterBar({ filters, onFilterChange, onClearFilters }: FilterBarProps) {
+  const handleRegiaoChange = (value: string) => {
+    onFilterChange({ ...filters, regiao: value });
+  };
+
+  const handleEstadoCivilChange = (value: string) => {
+    onFilterChange({ ...filters, estadoCivil: value });
+  };
+
+  const handleIgrejaChange = (value: string) => {
+    onFilterChange({ ...filters, igreja: value });
+  };
+
+  const handleObreirosChange = (checked: boolean) => {
+    onFilterChange({ ...filters, apenasObreiros: checked });
+  };
+
+  const handleBatizadosChange = (checked: boolean) => {
+    onFilterChange({ ...filters, apenasBatizados: checked });
+  };
+
   return (
     <div className="bg-white/80 backdrop-blur rounded-2xl border border-purple-100 p-6 mb-6 shadow-sm shadow-purple-100">
       <div className="flex items-center gap-2 mb-4">
@@ -30,18 +50,18 @@ export function FilterBar({ filters, onFilterChange, onClearFilters }: FilterBar
           <Label>Região</Label>
           <Select
             value={filters.regiao}
-            onValueChange={(value: any) => onFilterChange({ ...filters, regiao: value })}
+            onValueChange={handleRegiaoChange}
           >
             <SelectTrigger className="bg-purple-50/50 border border-purple-100">
               <SelectValue placeholder="Todas as regiões" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="todas">Todas as regiões</SelectItem>
-              <SelectItem value="Centro">Centro</SelectItem>
               <SelectItem value="Norte">Norte</SelectItem>
               <SelectItem value="Sul">Sul</SelectItem>
               <SelectItem value="Leste">Leste</SelectItem>
               <SelectItem value="Oeste">Oeste</SelectItem>
+              <SelectItem value="Centro">Centro</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -51,7 +71,7 @@ export function FilterBar({ filters, onFilterChange, onClearFilters }: FilterBar
           <Label>Estado Civil</Label>
           <Select
             value={filters.estadoCivil}
-            onValueChange={(value: any) => onFilterChange({ ...filters, estadoCivil: value })}
+            onValueChange={handleEstadoCivilChange}
           >
             <SelectTrigger className="bg-purple-50/50 border border-purple-100">
               <SelectValue placeholder="Todos" />
@@ -60,7 +80,6 @@ export function FilterBar({ filters, onFilterChange, onClearFilters }: FilterBar
               <SelectItem value="todos">Todos</SelectItem>
               <SelectItem value="Solteiro(a)">Solteiro(a)</SelectItem>
               <SelectItem value="Casado(a)">Casado(a)</SelectItem>
-              <SelectItem value="União Estável">União Estável</SelectItem>
               <SelectItem value="Divorciado(a)">Divorciado(a)</SelectItem>
               <SelectItem value="Viúvo(a)">Viúvo(a)</SelectItem>
             </SelectContent>
@@ -72,7 +91,7 @@ export function FilterBar({ filters, onFilterChange, onClearFilters }: FilterBar
           <Label>Igreja</Label>
           <Select
             value={filters.igreja}
-            onValueChange={(value: any) => onFilterChange({ ...filters, igreja: value })}
+            onValueChange={handleIgrejaChange}
           >
             <SelectTrigger className="bg-purple-50/50 border border-purple-100">
               <SelectValue placeholder="Todas as igrejas" />
@@ -96,9 +115,7 @@ export function FilterBar({ filters, onFilterChange, onClearFilters }: FilterBar
               <Checkbox
                 id="obreiros"
                 checked={filters.apenasObreiros}
-                onCheckedChange={(checked: any) =>
-                  onFilterChange({ ...filters, apenasObreiros: checked === true })
-                }
+                onCheckedChange={(checked) => handleObreirosChange(checked === true)}
               />
               <Label htmlFor="obreiros" className="cursor-pointer">
                 Apenas Obreiros
@@ -108,9 +125,7 @@ export function FilterBar({ filters, onFilterChange, onClearFilters }: FilterBar
               <Checkbox
                 id="batizados"
                 checked={filters.apenasBatizados}
-                onCheckedChange={(checked: any) =>
-                  onFilterChange({ ...filters, apenasBatizados: checked === true })
-                }
+                onCheckedChange={(checked) => handleBatizadosChange(checked === true)}
               />
               <Label htmlFor="batizados" className="cursor-pointer">
                 Apenas Batizados
@@ -123,6 +138,15 @@ export function FilterBar({ filters, onFilterChange, onClearFilters }: FilterBar
       {/* Action Buttons */}
       <div className="flex gap-2">
         <Button 
+          type="button"
+          onClick={() => {}} 
+          className="bg-gradient-to-r from-[#9333EA] to-[#A855F7] hover:from-[#7E22CE] hover:to-[#9333EA] shadow-md shadow-purple-200"
+        >
+          <Filter className="w-4 h-4 mr-2" />
+          Aplicar Filtros
+        </Button>
+        <Button 
+          type="button"
           variant="outline" 
           onClick={onClearFilters} 
           className="border-purple-200 text-purple-700 hover:bg-purple-50"

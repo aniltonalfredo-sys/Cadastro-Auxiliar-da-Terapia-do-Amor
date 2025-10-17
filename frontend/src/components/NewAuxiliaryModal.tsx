@@ -7,15 +7,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Checkbox } from "./ui/checkbox";
 import { PhotoUpload } from "./PhotoUpload";
 import { PhoneInput } from "./PhoneInput";
+import { SearchableSelect } from "./SearchableSelect";
 import { Separator } from "./ui/separator";
 import { toast } from "sonner";
 import { Users, MapPin, AlertCircle, Heart } from "lucide-react";
 import type { Auxiliary } from "./AuxiliariesTable";
+import { getProvincias, getMunicipiosByProvincia } from "../data/angola-locations";
 
 interface NewAuxiliaryModalProps {
   open: boolean;
   onClose: () => void;
-  onSave: (aux: Auxiliary) => void;
+  onSave: (auxiliary: Auxiliary) => void;
   existingAuxiliaries: Auxiliary[];
 }
 
@@ -24,53 +26,48 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
   const [foto, setFoto] = useState<string>("");
   const [fotoConjuge, setFotoConjuge] = useState<string>("");
 
-  // Form fields for validation
+  // Form fields
   const [nome, setNome] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
   const [telefone, setTelefone] = useState<string>("");
-  const [nomeConjuge, setNomeConjuge] = useState<string>("");
   const [telefoneConjuge, setTelefoneConjuge] = useState<string>("");
+  const [igreja, setIgreja] = useState<string>("");
+  const [regiao, setRegiao] = useState<string>("");
+  const [obreiro, setObreiro] = useState(false);
+  const [batizado, setBatizado] = useState(false);
+  const [provinciaResidencial, setProvinciaResidencial] = useState<string>("");
+  const [municipioResidencial, setMunicipioResidencial] = useState<string>("");
+  const [bairroResidencial, setBairroResidencial] = useState<string>("");
+  const [ruaResidencial, setRuaResidencial] = useState<string>("");
+  const [numeroCasaResidencial, setNumeroCasaResidencial] = useState<string>("");
+  const [referenciaResidencial, setReferenciaResidencial] = useState<string>("");
+  const [provinciaIgreja, setProvinciaIgreja] = useState<string>("");
+  const [municipioIgreja, setMunicipioIgreja] = useState<string>("");
+  const [bairroIgreja, setBairroIgreja] = useState<string>("");
+  const [ruaIgreja, setRuaIgreja] = useState<string>("");
+  const [numeroCasaIgreja, setNumeroCasaIgreja] = useState<string>("");
+  const [referenciaIgreja, setReferenciaIgreja] = useState<string>("");
+  const [nomeConjuge, setNomeConjuge] = useState<string>("");
+  const [obreiroConjuge, setObreiroConjuge] = useState(false);
+  const [batizadoConjuge, setBatizadoConjuge] = useState(false);
 
+  const [emailConjuge, setEmailConjuge] = useState<string>("");
+  const [numeroResidencial, setNumeroResidencial] = useState<string>("");
+  const [numeroIgreja, setNumeroIgreja] = useState<string>("");
   // Validation states
   const [nomeError, setNomeError] = useState<string>("");
   const [telefoneError, setTelefoneError] = useState<string>("");
   const [telefoneConjugeError, setTelefoneConjugeError] = useState<string>("");
 
-  // Additional form fields
-  const [email, setEmail] = useState<string>("");
-  const [emailConjuge, setEmailConjuge] = useState<string>("");
-  const [igreja, setIgreja] = useState<string>("");
-  const [regiao, setRegiao] = useState<string>("");
-  const [provinciaResidencial, setProvinciaResidencial] = useState<string>("");
-  const [municipioResidencial, setMunicipioResidencial] = useState<string>("");
-  const [bairroResidencial, setBairroResidencial] = useState<string>("");
-  const [ruaResidencial, setRuaResidencial] = useState<string>("");
-  const [numeroResidencial, setNumeroResidencial] = useState<string>("");
-  const [referenciaResidencial, setReferenciaResidencial] = useState<string>("");
-
-  const [provinciaIgreja, setProvinciaIgreja] = useState<string>("");
-  const [municipioIgreja, setMunicipioIgreja] = useState<string>("");
-  const [bairroIgreja, setBairroIgreja] = useState<string>("");
-  const [ruaIgreja, setRuaIgreja] = useState<string>("");
-  const [numeroIgreja, setNumeroIgreja] = useState<string>("");
-  const [referenciaIgreja, setReferenciaIgreja] = useState<string>("");
-
-  const [obreiro, setObreiro] = useState<boolean>(false);
-  const [batizado, setBatizado] = useState<boolean>(false);
-  const [obreiroConjuge, setObreiroConjuge] = useState<boolean>(false);
-  const [batizadoConjuge, setBatizadoConjuge] = useState<boolean>(false);
-
 
   const [dataNascimento, setDataNascimento] = useState<string>("");
   const [dataUniao, setDataUniao] = useState<string>("");
   const [tempoRelacionamento, setTempoRelacionamento] = useState<string>("");
-
-  // Loading state
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-
-
+  
+  
   // Real-time validation for name
   useEffect(() => {
-
     if (nome.trim().length === 0) {
       setNomeError("");
       return;
@@ -95,7 +92,6 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
     }
 
     const cleanPhone = telefone.replace(/\D/g, "");
-    // Telefone angolano: 244 + 9 dígitos = 12 dígitos
     if (cleanPhone.length < 12) {
       setTelefoneError("");
       return;
@@ -112,7 +108,6 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
     }
   }, [telefone, existingAuxiliaries]);
 
-
   // Real-time validation for spouse phone
   useEffect(() => {
     if (telefoneConjuge.trim().length === 0) {
@@ -121,20 +116,17 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
     }
 
     const cleanPhone = telefoneConjuge.replace(/\D/g, "");
-    // Telefone angolano: 244 + 9 dígitos = 12 dígitos
     if (cleanPhone.length < 12) {
       setTelefoneConjugeError("");
       return;
     }
 
-    // Check against all auxiliaries
     const isDuplicate = existingAuxiliaries.some((aux) => {
       const auxPhone = aux.telefone.replace(/\D/g, "");
       const spousePhone = aux.conjuge?.telefone.replace(/\D/g, "");
       return auxPhone === cleanPhone || spousePhone === cleanPhone;
     });
 
-    // Check against main phone
     const sameAsMain = telefone.replace(/\D/g, "") === cleanPhone;
 
     if (isDuplicate) {
@@ -146,134 +138,41 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
     }
   }, [telefoneConjuge, telefone, existingAuxiliaries]);
 
+  // Get available data
+  const provincias = getProvincias();
+  const municipiosResidenciais = provinciaResidencial ? getMunicipiosByProvincia(provinciaResidencial) : [];
+  const municipiosIgreja = provinciaIgreja ? getMunicipiosByProvincia(provinciaIgreja) : [];
+
+  // Reset município when província changes
+  useEffect(() => {
+    if (provinciaResidencial) {
+      const municipios = getMunicipiosByProvincia(provinciaResidencial);
+      if (municipioResidencial && !municipios.includes(municipioResidencial)) {
+        setMunicipioResidencial("");
+      }
+    }
+  }, [provinciaResidencial, municipioResidencial]);
+
+  useEffect(() => {
+    if (provinciaIgreja) {
+      const municipios = getMunicipiosByProvincia(provinciaIgreja);
+      if (municipioIgreja && !municipios.includes(municipioIgreja)) {
+        setMunicipioIgreja("");
+      }
+    }
+  }, [provinciaIgreja, municipioIgreja]);
 
   const handleEstadoCivilChange = (value: string) => {
     setEstadoCivil(value);
     if (value === "solteiro") {
       setFotoConjuge("");
       setTelefoneConjuge("");
+      setNomeConjuge("");
     }
   };
 
-  // const handleSubmit = (e: React.FormEvent) => {
-
-
-  //   e.preventDefault();
-  //   try {
-  //     // Validate main photo
-  //     if (!foto) {
-  //       toast.error("Por favor, carregue a foto do auxiliar.");
-  //       return;
-  //     }
-
-  //     // Check for validation errors
-  //     if (nomeError) {
-  //       toast.error("Corrija os erros no formulário antes de continuar.");
-  //       return;
-  //     }
-
-  //     if (telefoneError) {
-  //       toast.error("Corrija os erros no formulário antes de continuar.");
-  //       return;
-  //     }
-
-  //     // Validate spouse photo if not single
-  //     if (showSpouseFields && !fotoConjuge) {
-  //       toast.error("Por favor, carregue a foto do cônjuge/parceiro.");
-  //       return;
-  //     }
-
-  //     if (showSpouseFields && telefoneConjugeError) {
-  //       toast.error("Corrija os erros no formulário antes de continuar.");
-  //       return;
-  //     }
-
-  //     // Mapear valores para o formato correto
-  //     const estadoCivilMap: { [key: string]: string } = {
-  //       "solteiro": "Solteiro(a)",
-  //       "casado": "Casado(a)",
-  //       "uniao-estavel": "União Estável",
-  //       "divorciado": "Divorciado(a)",
-  //       "viuvo": "Viúvo(a)"
-  //     };
-
-  //     const igrejaMap: { [key: string]: string } = {
-  //       "central": "Igreja Central",
-  //       "nova-esperanca": "Igreja Nova Esperança",
-  //       "fe-viva": "Igreja Fé Viva",
-  //       "luz-divina": "Igreja Luz Divina",
-  //       "amor-perfeito": "Igreja Amor Perfeito"
-  //     };
-
-  //     const regiaoMap: { [key: string]: string } = {
-  //       "norte": "Norte",
-  //       "sul": "Sul",
-  //       "leste": "Leste",
-  //       "oeste": "Oeste",
-  //       "centro": "Centro"
-  //     };
-
-  //     const novoAuxiliar = {
-  //       id: crypto.randomUUID(),
-  //       nome,
-  //       telefone,
-  //       email: email.trim(),
-  //       igreja,
-  //       regiao,
-  //       estadoCivil,
-  //       dataNascimento,
-  //       foto,
-  //       obreiro,
-  //       batizado,
-  //       dataCadastro: new Date().toISOString(),
-  //       enderecoResidencial: {
-  //         provincia: provinciaResidencial,
-  //         municipio: municipioResidencial,
-  //         bairro: bairroResidencial,
-  //         rua: ruaResidencial,
-  //         numeroCasa: numeroResidencial,
-  //         pontoReferencia: referenciaResidencial,
-  //       },
-  //       enderecoIgreja: {
-  //         provincia: provinciaIgreja,
-  //         municipio: municipioIgreja,
-  //         bairro: bairroIgreja,
-  //         rua: ruaIgreja,
-  //         numeroCasa: numeroIgreja,
-  //         pontoReferencia: referenciaIgreja,
-  //       },
-  //       conjuge: showSpouseFields
-  //         ? {
-  //           nome: nomeConjuge,
-  //           telefone: telefoneConjuge,
-  //           foto: fotoConjuge,
-  //           obreiro: obreiroConjuge,
-  //           batizado: batizadoConjuge,
-  //         }
-  //         : undefined,
-  //     }
-  //     onSave(novoAuxiliar);
-  //     handleClose();
-  //     toast.success("Auxiliar cadastrado com sucesso!");
-
-  //   } catch (error: any) {
-  //     toast.error(`Erro ao salvar auxiliar: ${error.message}`);
-  //   } finally {
-  //     // actualizar a lista de auxiliar apos sucesso
-  //   }
-  // }
-
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // setFormSubmitted(true);
-
-    // if (!validateForm()) {
-    //   toast.error("Por favor, preencha todos os campos obrigatórios corretamente.");
-    //   return;
-    // }
-
-    setIsSubmitting(true);
 
     try {
       // Mapear valores para o formato correto
@@ -355,6 +254,7 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
     } finally {
       setIsSubmitting(false);
     }
+
   };
 
   const resetForm = () => {
@@ -365,38 +265,43 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
     setTelefone("");
     setTelefoneConjuge("");
     setNomeConjuge("");
-    setEmail("");
-    setEmailConjuge("");
+    // setEmail("");
+    // setEmailConjuge("");
     setIgreja("");
     setRegiao("");
     setProvinciaResidencial("");
     setMunicipioResidencial("");
     setBairroResidencial("");
     setRuaResidencial("");
-    setNumeroResidencial("");
+    // setNumeroResidencial("");
     setReferenciaResidencial("");
     setProvinciaIgreja("");
     setMunicipioIgreja("");
     setBairroIgreja("");
     setRuaIgreja("");
-    setNumeroIgreja("");
+    // setNumeroIgreja("");
     setReferenciaIgreja("");
     setObreiro(false);
     setBatizado(false);
     setObreiroConjuge(false);
     setBatizadoConjuge(false);
-    setDataNascimento("");
-    setDataUniao("");
-    setTempoRelacionamento("");
+    // setDataNascimento("");
+    // setDataUniao("");
+    // setTempoRelacionamento("");
     setNomeError("");
     setTelefoneError("");
     setTelefoneConjugeError("");
-    setIsSubmitting(false);
+    // setIsSubmitting(false);
+    setEstadoCivil("");
+    setFoto("");
+    setFotoConjuge("");
+
+
   };
 
   const handleClose = () => {
+    // Reset form
     resetForm();
-    onClose();
   };
 
   const showSpouseFields = estadoCivil !== "" && estadoCivil !== "solteiro";
@@ -414,9 +319,9 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-3">
+        <form onSubmit={handleSubmit} className="space-y-6">
           {/* Personal Information */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div>
             <h3 className="mb-4">Dados Pessoais do Auxiliar</h3>
 
             {/* Photo Upload */}
@@ -472,8 +377,6 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
                   type="email"
                   placeholder="email@exemplo.com"
                   className="bg-[#F7F8FA] border-0"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
 
@@ -499,24 +402,22 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
                   id="dataNascimento"
                   type="date"
                   className="bg-[#F7F8FA] border-0"
-                  value={dataNascimento}
-                  onChange={(e) => setDataNascimento(e.target.value)}
                 />
               </div>
 
               <div className="space-y-3 md:col-span-2">
-                <Label>Informações Eclesiásticas</Label>
+                <Label>Status Eclesiástico</Label>
                 <div className="flex gap-6">
                   <div className="flex items-center gap-2">
-                    <Checkbox id="obreiro" checked={obreiro} onCheckedChange={(checked: any) => setObreiro(!!checked)} />
+                    <Checkbox id="obreiro" checked={obreiro} onCheckedChange={(checked: any) => setObreiro(checked === true)} />
                     <Label htmlFor="obreiro" className="cursor-pointer">
                       É Obreiro
                     </Label>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Checkbox id="batizado" checked={batizado} onCheckedChange={(checked: any) => setBatizado(!!checked)} />
+                    <Checkbox id="batizado" checked={batizado} onCheckedChange={(checked: any) => setBatizado(checked === true)} />
                     <Label htmlFor="batizado" className="cursor-pointer">
-                      É Baptizado
+                      É Batizado
                     </Label>
                   </div>
                 </div>
@@ -536,43 +437,28 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="provinciaResidencial">Província *</Label>
-                {/* Província Residencial */}
-                <Select required value={provinciaResidencial} onValueChange={setProvinciaResidencial}>
-                  <SelectTrigger id="provinciaResidencial" className="bg-[#F7F8FA] border-0">
-                    <SelectValue placeholder="Selecione a província" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Luanda">Luanda</SelectItem>
-                    <SelectItem value="Benguela">Benguela</SelectItem>
-                    <SelectItem value="Huambo">Huambo</SelectItem>
-                    <SelectItem value="Huíla">Huíla</SelectItem>
-                    <SelectItem value="Cabinda">Cabinda</SelectItem>
-                    <SelectItem value="Cuando Cubango">Cuando Cubango</SelectItem>
-                    <SelectItem value="Cuanza Norte">Cuanza Norte</SelectItem>
-                    <SelectItem value="Cuanza Sul">Cuanza Sul</SelectItem>
-                    <SelectItem value="Cunene">Cunene</SelectItem>
-                    <SelectItem value="Lunda Norte">Lunda Norte</SelectItem>
-                    <SelectItem value="Lunda Sul">Lunda Sul</SelectItem>
-                    <SelectItem value="Malanje">Malanje</SelectItem>
-                    <SelectItem value="Moxico">Moxico</SelectItem>
-                    <SelectItem value="Namibe">Namibe</SelectItem>
-                    <SelectItem value="Uíge">Uíge</SelectItem>
-                    <SelectItem value="Zaire">Zaire</SelectItem>
-                    <SelectItem value="Bié">Bié</SelectItem>
-                    <SelectItem value="Bengo">Bengo</SelectItem>
-                  </SelectContent>
-                </Select>
+                <SearchableSelect
+                  id="provinciaResidencial"
+                  value={provinciaResidencial}
+                  onChange={setProvinciaResidencial}
+                  options={provincias}
+                  placeholder="Selecione a província"
+                  searchPlaceholder="Pesquisar província..."
+                  className="bg-purple-50/50 border border-purple-100"
+                />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="municipioResidencial">Município *</Label>
-                <Input
+                <SearchableSelect
                   id="municipioResidencial"
-                  placeholder="Nome do município"
-                  required
-                  className="bg-[#F7F8FA] border-0"
                   value={municipioResidencial}
-                  onChange={(e) => setMunicipioResidencial(e.target.value)}
+                  onChange={setMunicipioResidencial}
+                  options={municipiosResidenciais}
+                  placeholder="Selecione o município"
+                  searchPlaceholder="Pesquisar município..."
+                  disabled={!provinciaResidencial}
+                  className="bg-purple-50/50 border border-purple-100"
                 />
               </div>
 
@@ -582,9 +468,9 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
                   id="bairroResidencial"
                   placeholder="Nome do bairro"
                   required
-                  className="bg-[#F7F8FA] border-0"
                   value={bairroResidencial}
                   onChange={(e) => setBairroResidencial(e.target.value)}
+                  className="bg-[#F7F8FA] border-0"
                 />
               </div>
 
@@ -594,9 +480,9 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
                   id="ruaResidencial"
                   placeholder="Nome da rua"
                   required
-                  className="bg-[#F7F8FA] border-0"
                   value={ruaResidencial}
                   onChange={(e) => setRuaResidencial(e.target.value)}
+                  className="bg-[#F7F8FA] border-0"
                 />
               </div>
 
@@ -606,9 +492,9 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
                   id="numeroCasaResidencial"
                   placeholder="Nº"
                   required
+                  value={numeroCasaResidencial}
+                  onChange={(e) => setNumeroCasaResidencial(e.target.value)}
                   className="bg-[#F7F8FA] border-0"
-                  value={numeroResidencial}
-                  onChange={(e) => setNumeroResidencial(e.target.value)}
                 />
               </div>
 
@@ -617,9 +503,9 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
                 <Input
                   id="referenciaResidencial"
                   placeholder="Ex: Próximo ao mercado"
-                  className="bg-[#F7F8FA] border-0"
                   value={referenciaResidencial}
                   onChange={(e) => setReferenciaResidencial(e.target.value)}
+                  className="bg-[#F7F8FA] border-0"
                 />
               </div>
             </div>
@@ -685,8 +571,6 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
                       type="email"
                       placeholder="email@exemplo.com"
                       className="bg-white border-0"
-                      value={emailConjuge}
-                      onChange={(e) => setEmailConjuge(e.target.value)}
                     />
                   </div>
 
@@ -694,23 +578,15 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
                     <Label>Status Eclesiástico do Cônjuge</Label>
                     <div className="flex gap-6">
                       <div className="flex items-center gap-2">
-                        <Checkbox
-                          id="obreiroConjuge"
-                          checked={obreiroConjuge}
-                          onCheckedChange={(checked: any) => setObreiroConjuge(!!checked)}
-                        />
+                        <Checkbox id="obreiroConjuge" checked={obreiroConjuge} onCheckedChange={(checked: any) => setObreiroConjuge(checked === true)} />
                         <Label htmlFor="obreiroConjuge" className="cursor-pointer">
                           É Obreiro
                         </Label>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Checkbox
-                          id="batizadoConjuge"
-                          checked={batizadoConjuge}
-                          onCheckedChange={(checked: any) => setBatizadoConjuge(!!checked)}
-                        />
+                        <Checkbox id="batizadoConjuge" checked={batizadoConjuge} onCheckedChange={(checked: any) => setBatizadoConjuge(checked === true)} />
                         <Label htmlFor="batizadoConjuge" className="cursor-pointer">
-                          É Baptizado
+                          É Batizado
                         </Label>
                       </div>
                     </div>
@@ -733,11 +609,11 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
                     <SelectValue placeholder="Selecione a igreja" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="central">Igreja Central</SelectItem>
-                    <SelectItem value="nova-esperanca">Igreja Nova Esperança</SelectItem>
-                    <SelectItem value="fe-viva">Igreja Fé Viva</SelectItem>
-                    <SelectItem value="luz-divina">Igreja Luz Divina</SelectItem>
-                    <SelectItem value="amor-perfeito">Igreja Amor Perfeito</SelectItem>
+                    <SelectItem value="Igreja Central">Igreja Central</SelectItem>
+                    <SelectItem value="Igreja Nova Esperança">Igreja Nova Esperança</SelectItem>
+                    <SelectItem value="Igreja Fé Viva">Igreja Fé Viva</SelectItem>
+                    <SelectItem value="Igreja Luz Divina">Igreja Luz Divina</SelectItem>
+                    <SelectItem value="Igreja Amor Perfeito">Igreja Amor Perfeito</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -749,11 +625,11 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
                     <SelectValue placeholder="Selecione a região" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="norte">Norte</SelectItem>
-                    <SelectItem value="sul">Sul</SelectItem>
-                    <SelectItem value="leste">Leste</SelectItem>
-                    <SelectItem value="oeste">Oeste</SelectItem>
-                    <SelectItem value="centro">Centro</SelectItem>
+                    <SelectItem value="Norte">Norte</SelectItem>
+                    <SelectItem value="Sul">Sul</SelectItem>
+                    <SelectItem value="Leste">Leste</SelectItem>
+                    <SelectItem value="Oeste">Oeste</SelectItem>
+                    <SelectItem value="Centro">Centro</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -768,42 +644,28 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="provinciaIgreja">Província *</Label>
-                <Select required value={provinciaIgreja} onValueChange={setProvinciaIgreja}>
-                  <SelectTrigger id="provinciaIgreja" className="bg-[#F7F8FA] border-0">
-                    <SelectValue placeholder="Selecione a província" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Luanda">Luanda</SelectItem>
-                    <SelectItem value="Benguela">Benguela</SelectItem>
-                    <SelectItem value="Huambo">Huambo</SelectItem>
-                    <SelectItem value="Huíla">Huíla</SelectItem>
-                    <SelectItem value="Cabinda">Cabinda</SelectItem>
-                    <SelectItem value="Cuando Cubango">Cuando Cubango</SelectItem>
-                    <SelectItem value="Cuanza Norte">Cuanza Norte</SelectItem>
-                    <SelectItem value="Cuanza Sul">Cuanza Sul</SelectItem>
-                    <SelectItem value="Cunene">Cunene</SelectItem>
-                    <SelectItem value="Lunda Norte">Lunda Norte</SelectItem>
-                    <SelectItem value="Lunda Sul">Lunda Sul</SelectItem>
-                    <SelectItem value="Malanje">Malanje</SelectItem>
-                    <SelectItem value="Moxico">Moxico</SelectItem>
-                    <SelectItem value="Namibe">Namibe</SelectItem>
-                    <SelectItem value="Uíge">Uíge</SelectItem>
-                    <SelectItem value="Zaire">Zaire</SelectItem>
-                    <SelectItem value="Bié">Bié</SelectItem>
-                    <SelectItem value="Bengo">Bengo</SelectItem>
-                  </SelectContent>
-                </Select>
+                <SearchableSelect
+                  id="provinciaIgreja"
+                  value={provinciaIgreja}
+                  onChange={setProvinciaIgreja}
+                  options={provincias}
+                  placeholder="Selecione a província"
+                  searchPlaceholder="Pesquisar província..."
+                  className="bg-purple-50/50 border border-purple-100"
+                />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="municipioIgreja">Município *</Label>
-                <Input
+                <SearchableSelect
                   id="municipioIgreja"
-                  placeholder="Nome do município"
-                  required
-                  className="bg-[#F7F8FA] border-0"
                   value={municipioIgreja}
-                  onChange={(e) => setMunicipioIgreja(e.target.value)}
+                  onChange={setMunicipioIgreja}
+                  options={municipiosIgreja}
+                  placeholder="Selecione o município"
+                  searchPlaceholder="Pesquisar município..."
+                  disabled={!provinciaIgreja}
+                  className="bg-purple-50/50 border border-purple-100"
                 />
               </div>
 
@@ -813,9 +675,9 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
                   id="bairroIgreja"
                   placeholder="Nome do bairro"
                   required
-                  className="bg-[#F7F8FA] border-0"
                   value={bairroIgreja}
                   onChange={(e) => setBairroIgreja(e.target.value)}
+                  className="bg-[#F7F8FA] border-0"
                 />
               </div>
 
@@ -825,9 +687,9 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
                   id="ruaIgreja"
                   placeholder="Nome da rua"
                   required
-                  className="bg-[#F7F8FA] border-0"
                   value={ruaIgreja}
                   onChange={(e) => setRuaIgreja(e.target.value)}
+                  className="bg-[#F7F8FA] border-0"
                 />
               </div>
 
@@ -837,9 +699,9 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
                   id="numeroCasaIgreja"
                   placeholder="Nº"
                   required
+                  value={numeroCasaIgreja}
+                  onChange={(e) => setNumeroCasaIgreja(e.target.value)}
                   className="bg-[#F7F8FA] border-0"
-                  value={numeroIgreja}
-                  onChange={(e) => setNumeroIgreja(e.target.value)}
                 />
               </div>
 
@@ -848,9 +710,9 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
                 <Input
                   id="referenciaIgreja"
                   placeholder="Ex: Próximo à praça principal"
-                  className="bg-[#F7F8FA] border-0"
                   value={referenciaIgreja}
                   onChange={(e) => setReferenciaIgreja(e.target.value)}
+                  className="bg-[#F7F8FA] border-0"
                 />
               </div>
             </div>
@@ -869,8 +731,6 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
                       id="dataUniao"
                       type="date"
                       className="bg-[#F7F8FA] border-0"
-                      value={dataUniao}
-                      onChange={(e) => setDataUniao(e.target.value)}
                     />
                   </div>
 
@@ -880,8 +740,6 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
                       id="tempoRelacionamento"
                       placeholder="Ex: 2 anos e 3 meses"
                       className="bg-[#F7F8FA] border-0"
-                      value={tempoRelacionamento}
-                      onChange={(e) => setTempoRelacionamento(e.target.value)}
                     />
                   </div>
                 </div>
@@ -891,19 +749,13 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
 
           {/* Action Buttons */}
           <div className="flex justify-end gap-2 pt-4 border-t border-purple-100">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleClose}
-              className="border-purple-200 text-purple-700 hover:bg-purple-50">
+            <Button type="button" variant="outline" onClick={handleClose} className="border-purple-200 text-purple-700 hover:bg-purple-50">
               Cancelar
             </Button>
             <Button
               type="submit"
               className="bg-gradient-to-r from-[#9333EA] to-[#A855F7] hover:from-[#7E22CE] hover:to-[#9333EA] shadow-md shadow-purple-200"
-
               disabled={!!nomeError || !!telefoneError || !!telefoneConjugeError}
-
             >
               💕 Cadastrar Auxiliar
             </Button>

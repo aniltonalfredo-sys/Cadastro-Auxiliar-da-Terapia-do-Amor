@@ -1,4 +1,4 @@
-import { Eye, Pencil, Trash2 } from "lucide-react";
+import { Eye, Pencil, Trash2, FileText } from "lucide-react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
@@ -12,14 +12,14 @@ import {
 } from "./ui/table";
 
 export interface Auxiliary {
-  id?: string;
-  foto: string;
+  id?: number;
   nome: string;
+  foto: string;
   email: string;
+  dataNascimento: string;
   igreja: string;
   regiao: string;
   estadoCivil: string;
-  dataNascimento: string;
   telefone: string;
   obreiro: boolean;
   batizado: boolean;
@@ -46,7 +46,7 @@ export interface Auxiliary {
     foto: string;
     obreiro: boolean;
     batizado: boolean;
-  } | null;
+  };
 }
 
 interface AuxiliariesTableProps {
@@ -54,6 +54,7 @@ interface AuxiliariesTableProps {
   onView: (auxiliary: Auxiliary) => void;
   onEdit: (auxiliary: Auxiliary) => void;
   onDelete: (auxiliary: Auxiliary) => void;
+  onPrintCard: (auxiliary: Auxiliary) => void;
 }
 
 export function AuxiliariesTable({
@@ -61,6 +62,7 @@ export function AuxiliariesTable({
   onView,
   onEdit,
   onDelete,
+  onPrintCard,
 }: AuxiliariesTableProps) {
   return (
     <div className="bg-white/80 backdrop-blur rounded-2xl border border-purple-100 overflow-hidden shadow-sm shadow-purple-100">
@@ -125,7 +127,7 @@ export function AuxiliariesTable({
                     </Badge>
                   )}
                 </TableCell>
-                <TableCell>{new Date(auxiliary.dataCadastro).toLocaleDateString('pt-AO')}</TableCell>
+                <TableCell>{auxiliary.dataCadastro}</TableCell>
                 <TableCell>
                   <div className="flex items-center justify-center gap-1">
                     <Button
@@ -133,6 +135,7 @@ export function AuxiliariesTable({
                       size="icon"
                       className="h-8 w-8 text-[#9333EA] hover:bg-purple-50"
                       onClick={() => onView(auxiliary)}
+                      title="Ver detalhes"
                     >
                       <Eye className="w-4 h-4" />
                     </Button>
@@ -141,17 +144,28 @@ export function AuxiliariesTable({
                       size="icon"
                       className="h-8 w-8 text-purple-600 hover:bg-purple-50"
                       onClick={() => onEdit(auxiliary)}
+                      title="Editar"
                     >
                       <Pencil className="w-4 h-4" />
                     </Button>
-                    {/* <Button
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-blue-600 hover:bg-blue-50"
+                      onClick={() => onPrintCard(auxiliary)}
+                      title="Imprimir ficha"
+                    >
+                      <FileText className="w-4 h-4" />
+                    </Button>
+                    <Button
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 text-rose-600 hover:bg-rose-50"
                       onClick={() => onDelete(auxiliary)}
+                      title="Excluir"
                     >
                       <Trash2 className="w-4 h-4" />
-                    </Button> */}
+                    </Button>
                   </div>
                 </TableCell>
               </TableRow>
