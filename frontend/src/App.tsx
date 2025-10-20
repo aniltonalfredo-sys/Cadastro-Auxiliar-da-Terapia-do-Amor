@@ -739,7 +739,7 @@ export default function App() {
       {activityToPrint && (
         <PrintActivityParticipants
           activity={activityToPrint}
-          participants={auxiliaries.filter(aux => activityToPrint.participantIds.includes(aux.id))}
+          participants={auxiliaries.filter(aux => activityToPrint.participantIds.includes(aux.id.toString()))}
         />
       )}
     </div>

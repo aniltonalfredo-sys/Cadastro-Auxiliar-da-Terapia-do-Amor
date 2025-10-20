@@ -12,7 +12,7 @@ import {
 } from "./ui/table";
 
 export interface Auxiliary {
-  id?: number;
+  id: string;
   nome: string;
   foto: string;
   email: string;
