@@ -242,6 +242,7 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
             batizado: batizadoConjuge,
           }
           : undefined,
+        id: ""
       };
 
       console.log("Dados mapeados para envio:", novoAuxiliar);
@@ -302,6 +303,7 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
   const handleClose = () => {
     // Reset form
     resetForm();
+    onClose();
   };
 
   const showSpouseFields = estadoCivil !== "" && estadoCivil !== "solteiro";

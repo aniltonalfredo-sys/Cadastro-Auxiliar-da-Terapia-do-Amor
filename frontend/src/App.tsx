@@ -30,7 +30,7 @@ import {
   CalendarDays,
   LogOut
 } from "lucide-react";
-import { listarAuxiliares } from "../../../frontend-auxiliares/src/api/api";
+import { listarAuxiliares } from "./api/api";
 import { actualizarAuxiliar, criarAuxiliar } from "./api/api";
 
 // Initial mock data

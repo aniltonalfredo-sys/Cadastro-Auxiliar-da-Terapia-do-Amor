@@ -31,5 +31,5 @@ app.use("/api/auth", authRoutes)
 // expressListRoutes(utilizadorRoutes, { prefix: "/api/utilizador", forceUnixPathStyle: true });
 
 
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 8090;
 app.listen(PORT, () => console.log(`✅ Servidor rodando na porta ${PORT}`));
