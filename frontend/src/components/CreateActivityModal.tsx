@@ -11,15 +11,31 @@ import { Badge } from "./ui/badge";
 import { toast } from "sonner";
 import { Calendar, MapPin, Users, Heart, CheckCircle, Search } from "lucide-react";
 import type { Auxiliary } from "./AuxiliariesTable";
+import { createActivity } from "../api/api"; // Import da API
+import type { Activity } from "../types/activity";
 
-export interface Activity {
-  id: string;
-  name: string;
-  date: string;
-  location: string;
-  participantIds: string[];
-  createdAt: string;
-}
+// export interface ActivityParticipant {
+//   id: string;
+//   nome: string;
+//   email?: string;
+//   telefone: string;
+//   foto?: string;
+//   igreja: string;
+//   regiao: string;
+//   obreiro: boolean;
+//   batizado: boolean;
+// }
+// export interface Activity {
+//    id: string;
+//   name: string;
+//   date: string;
+//   location?: string;
+//   description?: string;
+//   participants: ActivityParticipant[];
+//   participantIds: string[];
+//   createdAt: string;
+//   updatedAt: string;
+// }
 
 interface CreateActivityModalProps {
   open: boolean;
@@ -34,6 +50,7 @@ export function CreateActivityModal({ open, onClose, auxiliaries, onSaveActivity
   const [activityLocation, setActivityLocation] = useState("");
   const [selectedAuxiliaries, setSelectedAuxiliaries] = useState<Set<string>>(new Set());
   const [searchTerm, setSearchTerm] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleToggleAuxiliary = (id: string) => {
     const newSelected = new Set(selectedAuxiliaries);
@@ -55,10 +72,11 @@ export function CreateActivityModal({ open, onClose, auxiliaries, onSaveActivity
     setSelectedAuxiliaries(new Set());
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!activityName || !activityDate) {
+
+    // Validações
+    if (!activityName.trim() || !activityDate) {
       toast.error("Por favor, preencha o nome e a data da atividade.");
       return;
     }
@@ -68,18 +86,71 @@ export function CreateActivityModal({ open, onClose, auxiliaries, onSaveActivity
       return;
     }
 
-    const newActivity: Activity = {
-      id: Date.now().toString(),
-      name: activityName,
-      date: activityDate,
-      location: activityLocation,
-      participantIds: Array.from(selectedAuxiliaries),
-      createdAt: new Date().toISOString(),
-    };
+    setIsSubmitting(true);
 
-    onSaveActivity(newActivity);
-    toast.success(`Atividade "${activityName}" criada com ${selectedAuxiliaries.size} participante(s)!`);
-    handleClose();
+    try {
+       const participantIds = Array.from(selectedAuxiliaries).map(id => {
+      const num = parseInt(id.toString(), 10);
+      if (isNaN(num)) {
+        throw new Error(`ID inválido: ${id}`);
+      }
+      return num;
+    });
+
+      // Preparar dados para a API
+
+      const activityData = {
+        name: activityName.trim(),
+        date: activityDate,
+        location: activityLocation.trim() || undefined,
+        participantIds: participantIds,
+      };
+
+      // Chamar a API do backend
+      const response = await createActivity(activityData);
+
+      console.log('📦 Dados enviados para API:', activityData);
+
+      if (response.success) {
+        toast.success(`Atividade "${activityName}" criada com ${selectedAuxiliaries.size} participante(s)!`);
+
+        // Criar objeto Activity para o estado local
+        const newActivity: Activity = {
+          id: response.data.id,
+          name: response.data.name,
+          date: response.data.date,
+          location: response.data.location || "",
+          participants: response.data.participants || [],
+          participantIds: response.data.participantIds || [],
+          createdAt: response.data.createdAt,
+          updatedAt: response.data.updatedAt
+        };
+
+        // Chamar função do componente pai
+        onSaveActivity(newActivity);
+
+        // Fechar e limpar
+        handleClose();
+      } else {
+        toast.error(response.message || "Erro ao criar atividade.");
+      }
+
+    } catch (error: any) {
+      console.error("Erro ao criar atividade:", error);
+
+      // Tratamento de erros
+      if (error.response?.status === 401) {
+        toast.error("Sessão expirada. Por favor, faça login novamente.");
+      } else if (error.response?.data?.message) {
+        toast.error(error.response.data.message);
+      } else if (error.message?.includes("Network Error")) {
+        toast.error("Erro de conexão. Verifique se o servidor está rodando.");
+      } else {
+        toast.error("Erro inesperado ao criar atividade.");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleClose = () => {
@@ -94,7 +165,7 @@ export function CreateActivityModal({ open, onClose, auxiliaries, onSaveActivity
   const getFilteredAuxiliaries = () => {
     if (!searchTerm) return auxiliaries;
     const searchLower = searchTerm.toLowerCase();
-    return auxiliaries.filter(aux => 
+    return auxiliaries.filter(aux =>
       aux.nome.toLowerCase().includes(searchLower) ||
       aux.igreja.toLowerCase().includes(searchLower) ||
       aux.telefone.includes(searchLower)
@@ -104,7 +175,11 @@ export function CreateActivityModal({ open, onClose, auxiliaries, onSaveActivity
   const filteredAuxiliaries = getFilteredAuxiliaries();
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    <Dialog open={open} onOpenChange={(isOpen: any) => {
+      if (!isOpen) {
+        handleClose();
+      }
+    }}>
       <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col p-0 gap-0 bg-white border-purple-200 overflow-hidden">
         <DialogHeader className="px-6 pt-6 pb-4 shrink-0">
           <DialogTitle className="text-purple-900 flex items-center gap-2">
@@ -130,6 +205,7 @@ export function CreateActivityModal({ open, onClose, auxiliaries, onSaveActivity
                     value={activityName}
                     onChange={(e) => setActivityName(e.target.value)}
                     className="bg-purple-50/50 border border-purple-100"
+                    disabled={isSubmitting}
                   />
                 </div>
 
@@ -145,6 +221,7 @@ export function CreateActivityModal({ open, onClose, auxiliaries, onSaveActivity
                         value={activityDate}
                         onChange={(e) => setActivityDate(e.target.value)}
                         className="pl-10 bg-purple-50/50 border border-purple-100"
+                        disabled={isSubmitting}
                       />
                     </div>
                   </div>
@@ -159,6 +236,7 @@ export function CreateActivityModal({ open, onClose, auxiliaries, onSaveActivity
                         value={activityLocation}
                         onChange={(e) => setActivityLocation(e.target.value)}
                         className="pl-10 bg-purple-50/50 border border-purple-100"
+                        disabled={isSubmitting}
                       />
                     </div>
                   </div>
@@ -184,6 +262,7 @@ export function CreateActivityModal({ open, onClose, auxiliaries, onSaveActivity
                       size="sm"
                       onClick={handleSelectAll}
                       className="border-purple-200 text-purple-700 hover:bg-purple-50 text-xs px-2"
+                      disabled={isSubmitting}
                     >
                       Todos
                     </Button>
@@ -193,6 +272,7 @@ export function CreateActivityModal({ open, onClose, auxiliaries, onSaveActivity
                       size="sm"
                       onClick={handleDeselectAll}
                       className="border-purple-200 text-purple-700 hover:bg-purple-50 text-xs px-2"
+                      disabled={isSubmitting}
                     >
                       Limpar
                     </Button>
@@ -208,6 +288,7 @@ export function CreateActivityModal({ open, onClose, auxiliaries, onSaveActivity
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10 bg-purple-50/50 border border-purple-100"
+                    disabled={isSubmitting}
                   />
                 </div>
 
@@ -224,18 +305,18 @@ export function CreateActivityModal({ open, onClose, auxiliaries, onSaveActivity
                         return (
                           <div
                             key={auxiliary.id}
-                            className={`flex items-center gap-2 p-2.5 rounded-lg border transition-all ${
-                              isSelected
+                            className={`flex items-center gap-2 p-2.5 rounded-lg border transition-all ${isSelected
                                 ? "bg-purple-100 border-purple-300"
                                 : "bg-white border-purple-200 hover:bg-purple-50"
-                            }`}
+                              } ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
                           >
                             <Checkbox
                               checked={isSelected}
                               onCheckedChange={() => handleToggleAuxiliary(auxiliary.id)}
                               className="shrink-0"
+                              disabled={isSubmitting}
                             />
-                          
+
                             <Avatar className="w-9 h-9 shrink-0">
                               <AvatarImage src={auxiliary.foto} alt={auxiliary.nome} />
                               <AvatarFallback className="text-xs">
@@ -289,14 +370,25 @@ export function CreateActivityModal({ open, onClose, auxiliaries, onSaveActivity
               variant="outline"
               onClick={handleClose}
               className="border-purple-200 text-purple-700 hover:bg-purple-50"
+              disabled={isSubmitting}
             >
               Cancelar
             </Button>
             <Button
               type="submit"
               className="bg-gradient-to-r from-[#9333EA] to-[#A855F7] hover:from-[#7E22CE] hover:to-[#9333EA] shadow-md shadow-purple-200"
+              disabled={isSubmitting}
             >
-              💕 Criar Atividade
+              {isSubmitting ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                  Criando...
+                </>
+              ) : (
+                <>
+                  💕 Criar Atividade
+                </>
+              )}
             </Button>
           </div>
         </form>

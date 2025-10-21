@@ -83,3 +83,34 @@ export async function actualizarAuxiliar(id: string, data: Auxiliary) {
   return res.data;
 }
 
+// Funções para actividades
+export async function createActivity(data: {
+  name: string;
+  date: string;
+  location?: string;
+  description?: string;
+  participantIds: (string | number)[]; 
+}) {
+  const res = await api.post('/activity', data);
+  return res.data;
+}
+
+export async function getActivities() {
+  const res = await api.get('/activity');
+  return res.data;
+}
+
+export async function getActivity(id: string) {
+  const res = await api.get(`/activity/${id}`);
+  return res.data;
+}
+
+export async function updateActivity(id: string, data: any) {
+  const res = await api.put(`/activity/${id}`, data);
+  return res.data;
+}
+
+export async function deleteActivity(id: string) {
+  const res = await api.delete(`/activity/${id}`);
+  return res.data;
+}

@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import auxiliarRoutes from "./routes/auxiliar.routes";
 import authRoutes from "./routes/auth.routes"
+import activityRoutes from "./routes/activity.routes"
 
 dotenv.config();
 const app = express();
@@ -28,6 +29,7 @@ app.use("/uploads", express.static("uploads"));
 
 app.use("/api/auxiliares", auxiliarRoutes);
 app.use("/api/auth", authRoutes)
+app.use("/api/activity", activityRoutes)
 // expressListRoutes(utilizadorRoutes, { prefix: "/api/utilizador", forceUnixPathStyle: true });
 
 

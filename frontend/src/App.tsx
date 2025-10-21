@@ -6,7 +6,8 @@ import { AuxiliaryDetailsModal } from "./components/AuxiliaryDetailsModal";
 import { NewAuxiliaryModal } from "./components/NewAuxiliaryModal";
 import { EditAuxiliaryModal } from "./components/EditAuxiliaryModal";
 import { CreateActivityModal } from "./components/CreateActivityModal";
-import { ViewActivitiesModal, type Activity } from "./components/ViewActivitiesModal";
+import { ViewActivitiesModal } from "./components/ViewActivitiesModal";
+import { Activity } from "./types/activity";
 import { ActivityDetailsModal } from "./components/ActivityDetailsModal";
 import { AuxiliaryRegistrationCard } from "./components/AuxiliaryRegistrationCard";
 import { PrintAuxiliariesList } from "./components/PrintAuxiliariesList";
@@ -15,13 +16,13 @@ import { StatsCard } from "./components/StatsCard";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
 import { Toaster, toast } from "sonner";
-import { 
-  UserPlus, 
-  FileSpreadsheet, 
-  Database, 
-  Printer, 
-  Users, 
-  CheckCircle, 
+import {
+  UserPlus,
+  FileSpreadsheet,
+  Database,
+  Printer,
+  Users,
+  CheckCircle,
   Droplet,
   TrendingUp,
   Heart,
@@ -32,6 +33,7 @@ import {
 } from "lucide-react";
 import { listarAuxiliares } from "./api/api";
 import { actualizarAuxiliar, criarAuxiliar } from "./api/api";
+import { getActivities, deleteActivity } from "./api/api";
 
 // Initial mock data
 // const initialAuxiliaries: Auxiliary[] = [
@@ -313,6 +315,22 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    loadActivities();
+  }, []);
+
+  const loadActivities = async () => {
+    try {
+      const response = await getActivities();
+      if (response.success) {
+        setActivities(response.data);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar atividades:', error);
+      toast.error('Erro ao carregar atividades');
+    }
+  };
+
+  useEffect(() => {
     listarAuxiliares()
       .then((data) => {
         console.log("Dados recebidos no App:", data);
@@ -427,7 +445,7 @@ export default function App() {
     setIsEditModalOpen(true);
   };
 
-  const handleDelete =  (auxiliary: Auxiliary) => {
+  const handleDelete = (auxiliary: Auxiliary) => {
     if (confirm(`Tem certeza que deseja excluir ${auxiliary.nome}?`)) {
       setAuxiliaries(prev => prev.filter(aux => aux.id !== auxiliary.id));
       toast.success(`${auxiliary.nome} foi excluído com sucesso!`);
@@ -437,11 +455,11 @@ export default function App() {
   const handleAddAuxiliary = async (newAuxiliary: Auxiliary) => {
     // setAuxiliaries(prev => [...prev, newAuxiliary]);
     // toast.success("Auxiliar cadastrado com sucesso!");
-    try{
+    try {
       console.log("Dados sendo enviados: ", newAuxiliary)
       const res = await criarAuxiliar(newAuxiliary);
-      setAuxiliaries((prev)=>[...prev, res]);
-    }catch (error: any) {
+      setAuxiliaries((prev) => [...prev, res]);
+    } catch (error: any) {
       toast.error(`Erro ao salvar auxiliar: ${error.message}`);
       console.error("Erro ao salvar auxiliar:", error);
     }
@@ -519,10 +537,14 @@ export default function App() {
     }
   };
 
+  const handleCloseCreateActivityModal = () => {
+    setIsCreateActivityModalOpen(false);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50/50 via-pink-50/30 to-white">
       <Toaster position="top-right" richColors />
-      
+
       {/* Header */}
       <header className="bg-gradient-to-r from-white via-purple-50/30 to-pink-50/30 border-b border-purple-100 sticky top-0 z-10 backdrop-blur-sm">
         <div className="container mx-auto px-6 py-4">
@@ -635,7 +657,7 @@ export default function App() {
             onClick={() => setIsCreateActivityModalOpen(true)}
           >
             <CalendarPlus className="w-4 h-4 mr-2" />
-            Criar Atividade
+            Criar Actividade
           </Button>
           <Button
             className="bg-gradient-to-r from-[#A855F7] to-[#C084FC] hover:from-[#9333EA] hover:to-[#A855F7] shadow-lg shadow-purple-200"
@@ -701,7 +723,8 @@ export default function App() {
 
       <CreateActivityModal
         open={isCreateActivityModalOpen}
-        onClose={() => setIsCreateActivityModalOpen(false)}
+        // onClose={() => setIsCreateActivityModalOpen(false)}
+        onClose={handleCloseCreateActivityModal}
         auxiliaries={auxiliaries}
         onSaveActivity={handleSaveActivity}
       />
@@ -731,7 +754,7 @@ export default function App() {
       {auxiliaryToPrint && (
         <AuxiliaryRegistrationCard auxiliary={auxiliaryToPrint} />
       )}
-      
+
       {shouldPrintList && (
         <PrintAuxiliariesList auxiliaries={filteredAuxiliaries} />
       )}
