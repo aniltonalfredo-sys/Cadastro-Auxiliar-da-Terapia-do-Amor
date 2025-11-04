@@ -127,7 +127,7 @@ export function AuxiliariesTable({
                     </Badge>
                   )}
                 </TableCell>
-                <TableCell>{auxiliary.dataCadastro}</TableCell>
+                <TableCell>{new Date(auxiliary.dataCadastro).toLocaleDateString('pt-PT')}</TableCell>
                 <TableCell>
                   <div className="flex items-center justify-center gap-1">
                     <Button
