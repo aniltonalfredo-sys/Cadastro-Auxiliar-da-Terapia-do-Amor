@@ -9,8 +9,8 @@ export class ActivityService {
     try {
       const { name, date, location, description, participantIds } = data;
 
-      console.log('🎯 Criando atividade com auxiliares');
-      console.log('📦 Dados recebidos:', data);
+      // console.log('🎯 Criando actividade com auxiliares');
+      // console.log('📦 Dados recebidos:', data);
 
       // Converter participantIds para números
       const participantIdsNumber = participantIds.map(id => {
@@ -21,7 +21,7 @@ export class ActivityService {
         return num;
       });
 
-      console.log('🔢 IDs de auxiliares convertidos:', participantIdsNumber);
+      // console.log('🔢 IDs de auxiliares convertidos:', participantIdsNumber);
 
       // Verificar se todos os AUXILIARES existem
       const auxiliares = await prisma.auxiliar.findMany({
@@ -51,7 +51,7 @@ export class ActivityService {
         throw new Error(`Os seguintes auxiliares não foram encontrados: ${missingIds.join(', ')}`);
       }
 
-      // Criar a atividade
+      // Criar a actividade
       const activity = await prisma.activity.create({
         data: {
           name,
@@ -85,11 +85,11 @@ export class ActivityService {
         }
       });
 
-      console.log('✅ Atividade criada com sucesso:', activity.id);
+      console.log('✅ Actividade criada com sucesso:', activity.id);
       return this.formatActivityResponse(activity);
 
     } catch (error) {
-      console.error('💥 Erro ao criar atividade:', error);
+      console.error('💥 Erro ao criar actividade:', error);
       throw error;
     }
   }
@@ -176,7 +176,7 @@ export class ActivityService {
       }
     }
 
-    // Atualizar os dados da atividade
+    // Atualizar os dados da actividade
     const activity = await prisma.activity.update({
       where: { id },
       data: {

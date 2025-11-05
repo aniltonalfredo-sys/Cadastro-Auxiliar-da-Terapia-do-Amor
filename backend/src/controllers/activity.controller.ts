@@ -14,12 +14,12 @@ export class ActivityController {
       res.status(201).json({
         success: true,
         data: activity,
-        message: 'Atividade criada com sucesso!'
+        message: 'Actividade criada com sucesso!'
       });
     } catch (error: any) {
       res.status(400).json({
         success: false,
-        message: error.message || 'Erro ao criar atividade'
+        message: error.message || 'Erro ao criar actividade'
       });
     }
   }
@@ -35,7 +35,7 @@ export class ActivityController {
     } catch (error: any) {
       res.status(500).json({
         success: false,
-        message: error.message || 'Erro ao buscar atividades'
+        message: error.message || 'Erro ao buscar actividades'
       });
     }
   }
@@ -49,7 +49,7 @@ export class ActivityController {
       if (!activity) {
         return res.status(404).json({
           success: false,
-          message: 'Atividade não encontrada'
+          message: 'Actividade não encontrada'
         });
       }
       
@@ -60,7 +60,7 @@ export class ActivityController {
     } catch (error: any) {
       res.status(500).json({
         success: false,
-        message: error.message || 'Erro ao buscar atividade'
+        message: error.message || 'Erro ao buscar actividade'
       });
     }
   }
@@ -75,12 +75,12 @@ export class ActivityController {
       res.json({
         success: true,
         data: activity,
-        message: 'Atividade atualizada com sucesso!'
+        message: 'Actividade atualizada com sucesso!'
       });
     } catch (error: any) {
       res.status(400).json({
         success: false,
-        message: error.message || 'Erro ao atualizar atividade'
+        message: error.message || 'Erro ao atualizar actividade'
       });
     }
   }
@@ -93,12 +93,12 @@ export class ActivityController {
       
       res.json({
         success: true,
-        message: 'Atividade excluída com sucesso!'
+        message: 'Actividade excluída com sucesso!'
       });
     } catch (error: any) {
       res.status(500).json({
         success: false,
-        message: error.message || 'Erro ao excluir atividade'
+        message: error.message || 'Erro ao excluir actividade'
       });
     }
   }

@@ -115,7 +115,7 @@ export function FilterBar({ filters, onFilterChange, onClearFilters }: FilterBar
               <Checkbox
                 id="obreiros"
                 checked={filters.apenasObreiros}
-                onCheckedChange={(checked) => handleObreirosChange(checked === true)}
+                onCheckedChange={(checked: any) => handleObreirosChange(checked === true)}
               />
               <Label htmlFor="obreiros" className="cursor-pointer">
                 Apenas Obreiros
@@ -125,10 +125,10 @@ export function FilterBar({ filters, onFilterChange, onClearFilters }: FilterBar
               <Checkbox
                 id="batizados"
                 checked={filters.apenasBatizados}
-                onCheckedChange={(checked) => handleBatizadosChange(checked === true)}
+                onCheckedChange={(checked: any) => handleBatizadosChange(checked === true)}
               />
               <Label htmlFor="batizados" className="cursor-pointer">
-                Apenas Batizados
+                Apenas Baptizados
               </Label>
             </div>
           </div>

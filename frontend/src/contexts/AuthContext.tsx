@@ -31,7 +31,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const userData = getCurrentUserData();
           setUser(userData);
         } catch (error) {
-          console.error('Erro ao carregar usuário:', error);
+          // console.error('Erro ao carregar usuário:', error);
           logout();
         }
       }

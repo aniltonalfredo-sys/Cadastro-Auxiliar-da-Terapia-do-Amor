@@ -35,249 +35,7 @@ import { listarAuxiliares } from "./api/api";
 import { actualizarAuxiliar, criarAuxiliar } from "./api/api";
 import { getActivities, deleteActivity } from "./api/api";
 
-// Initial mock data
-// const initialAuxiliaries: Auxiliary[] = [
-//   {
-//     id: "1",
-//     foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Maria",
-//     nome: "Maria Silva Santos",
-//     igreja: "Igreja Central",
-//     regiao: "Centro",
-//     estadoCivil: "Solteiro(a)",
-//     telefone: "+244 923 456 789",
-//     obreiro: true,
-//     batizado: true,
-//     dataCadastro: "15/01/2024",
-//     enderecoResidencial: {
-//       provincia: "Luanda",
-//       municipio: "Luanda",
-//       bairro: "Maculusso",
-//       rua: "Rua das Flores",
-//       numeroCasa: "123",
-//       pontoReferencia: "Próximo ao Mercado Central",
-//     },
-//     enderecoIgreja: {
-//       provincia: "Luanda",
-//       municipio: "Luanda",
-//       bairro: "Maianga",
-//       rua: "Av. 4 de Fevereiro",
-//       numeroCasa: "1000",
-//       pontoReferencia: "Em frente ao Banco BFA",
-//     },
-//   },
-//   {
-//     id: "2",
-//     foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Joao",
-//     nome: "João Pedro Oliveira",
-//     igreja: "Igreja Nova Esperança",
-//     regiao: "Norte",
-//     estadoCivil: "Solteiro(a)",
-//     telefone: "+244 945 678 901",
-//     obreiro: false,
-//     batizado: true,
-//     dataCadastro: "20/01/2024",
-//     enderecoResidencial: {
-//       provincia: "Luanda",
-//       municipio: "Viana",
-//       bairro: "Zango",
-//       rua: "Rua do Progresso",
-//       numeroCasa: "456",
-//       pontoReferencia: "Perto da Escola Primária",
-//     },
-//     enderecoIgreja: {
-//       provincia: "Luanda",
-//       municipio: "Viana",
-//       bairro: "Zango II",
-//       rua: "Av. Principal",
-//       numeroCasa: "2500",
-//       pontoReferencia: "Ao lado da Farmácia",
-//     },
-//   },
-//   {
-//     id: "3",
-//     foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Ana",
-//     nome: "Ana Paula Costa",
-//     igreja: "Igreja Fé Viva",
-//     regiao: "Sul",
-//     estadoCivil: "Casado(a)",
-//     telefone: "+244 912 345 678",
-//     obreiro: true,
-//     batizado: true,
-//     dataCadastro: "22/01/2024",
-//     enderecoResidencial: {
-//       provincia: "Benguela",
-//       municipio: "Benguela",
-//       bairro: "Praia Morena",
-//       rua: "Rua da Liberdade",
-//       numeroCasa: "789",
-//       pontoReferencia: "Próximo à Praia",
-//     },
-//     enderecoIgreja: {
-//       provincia: "Benguela",
-//       municipio: "Benguela",
-//       bairro: "Centro",
-//       rua: "Av. Norton de Matos",
-//       numeroCasa: "1500",
-//       pontoReferencia: "Em frente ao Hospital",
-//     },
-//     conjuge: {
-//       nome: "Roberto Costa",
-//       telefone: "+244 912 345 679",
-//       foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Roberto",
-//       obreiro: true,
-//       batizado: true,
-//     },
-//   },
-//   {
-//     id: "4",
-//     foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Carlos",
-//     nome: "Carlos Eduardo Souza",
-//     igreja: "Igreja Luz Divina",
-//     regiao: "Leste",
-//     estadoCivil: "Solteiro(a)",
-//     telefone: "+244 934 567 890",
-//     obreiro: false,
-//     batizado: false,
-//     dataCadastro: "25/01/2024",
-//     enderecoResidencial: {
-//       provincia: "Huíla",
-//       municipio: "Lubango",
-//       bairro: "Comercial",
-//       rua: "Rua Sá da Bandeira",
-//       numeroCasa: "321",
-//       pontoReferencia: "Ao lado do Supermercado",
-//     },
-//     enderecoIgreja: {
-//       provincia: "Huíla",
-//       municipio: "Lubango",
-//       bairro: "Lajes",
-//       rua: "Rua Principal",
-//       numeroCasa: "800",
-//       pontoReferencia: "Próximo à Praça",
-//     },
-//   },
-//   {
-//     id: "5",
-//     foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Beatriz",
-//     nome: "Beatriz Fernandes Lima",
-//     igreja: "Igreja Amor Perfeito",
-//     regiao: "Oeste",
-//     estadoCivil: "Divorciado(a)",
-//     telefone: "+244 956 789 012",
-//     obreiro: true,
-//     batizado: true,
-//     dataCadastro: "28/01/2024",
-//     enderecoResidencial: {
-//       provincia: "Huambo",
-//       municipio: "Huambo",
-//       bairro: "Benfica",
-//       rua: "Av. da Independência",
-//       numeroCasa: "654",
-//       pontoReferencia: "Perto do Centro Comercial",
-//     },
-//     enderecoIgreja: {
-//       provincia: "Huambo",
-//       municipio: "Huambo",
-//       bairro: "Centro",
-//       rua: "Rua Dr. António Agostinho Neto",
-//       numeroCasa: "1200",
-//       pontoReferencia: "Ao lado da Câmara Municipal",
-//     },
-//   },
-//   {
-//     id: "6",
-//     foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Pedro",
-//     nome: "Pedro Henrique Almeida",
-//     igreja: "Igreja Central",
-//     regiao: "Centro",
-//     estadoCivil: "Solteiro(a)",
-//     telefone: "+244 967 890 123",
-//     obreiro: false,
-//     batizado: true,
-//     dataCadastro: "01/02/2024",
-//     enderecoResidencial: {
-//       provincia: "Luanda",
-//       municipio: "Luanda",
-//       bairro: "Alvalade",
-//       rua: "Rua Rainha Ginga",
-//       numeroCasa: "987",
-//       pontoReferencia: "Próximo ao Clube",
-//     },
-//     enderecoIgreja: {
-//       provincia: "Luanda",
-//       municipio: "Luanda",
-//       bairro: "Maianga",
-//       rua: "Av. 4 de Fevereiro",
-//       numeroCasa: "1000",
-//       pontoReferencia: "Em frente ao Banco BFA",
-//     },
-//   },
-//   {
-//     id: "7",
-//     foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Julia",
-//     nome: "Julia Cristina Rocha",
-//     igreja: "Igreja Nova Esperança",
-//     regiao: "Norte",
-//     estadoCivil: "Casado(a)",
-//     telefone: "+244 978 901 234",
-//     obreiro: true,
-//     batizado: true,
-//     dataCadastro: "05/02/2024",
-//     enderecoResidencial: {
-//       provincia: "Cabinda",
-//       municipio: "Cabinda",
-//       bairro: "Marien Ngouabi",
-//       rua: "Rua da Amizade",
-//       numeroCasa: "555",
-//       pontoReferencia: "Próximo ao Porto",
-//     },
-//     enderecoIgreja: {
-//       provincia: "Cabinda",
-//       municipio: "Cabinda",
-//       bairro: "Centro",
-//       rua: "Av. Principal",
-//       numeroCasa: "2500",
-//       pontoReferencia: "Ao lado da Biblioteca",
-//     },
-//     conjuge: {
-//       nome: "Marcelo Rocha Silva",
-//       telefone: "+244 978 901 235",
-//       foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Marcelo",
-//       obreiro: false,
-//       batizado: true,
-//     },
-//   },
-//   {
-//     id: "8",
-//     foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=Lucas",
-//     nome: "Lucas Vieira Martins",
-//     igreja: "Igreja Fé Viva",
-//     regiao: "Sul",
-//     estadoCivil: "Solteiro(a)",
-//     telefone: "+244 989 012 345",
-//     obreiro: false,
-//     batizado: false,
-//     dataCadastro: "08/02/2024",
-//     enderecoResidencial: {
-//       provincia: "Namibe",
-//       municipio: "Moçâmedes",
-//       bairro: "Praia Amélia",
-//       rua: "Rua do Mar",
-//       numeroCasa: "2222",
-//       pontoReferencia: "Próximo ao Farol",
-//     },
-//     enderecoIgreja: {
-//       provincia: "Namibe",
-//       municipio: "Moçâmedes",
-//       bairro: "Centro",
-//       rua: "Av. da República",
-//       numeroCasa: "1500",
-//       pontoReferencia: "Em frente à Delegação",
-//     },
-//   },
-// ];
 
-// Credenciais de login (NOTA: Em produção real, isso deveria ser gerenciado no backend)
 const ADMIN_USERNAME = "admin";
 const ADMIN_PASSWORD = "terapiadoamor2024";
 
@@ -325,19 +83,19 @@ export default function App() {
         setActivities(response.data);
       }
     } catch (error) {
-      console.error('Erro ao carregar atividades:', error);
-      toast.error('Erro ao carregar atividades');
+      // console.error('Erro ao carregar actividades:', error);
+      toast.error('Erro ao carregar actividades');
     }
   };
 
   useEffect(() => {
     listarAuxiliares()
       .then((data) => {
-        console.log("Dados recebidos no App:", data);
+        // console.log("Dados recebidos no App:", data);
         setAuxiliaries(data);
       })
       .catch((error) => {
-        console.error("Erro ao buscar auxiliares:", error);
+        // console.error("Erro ao buscar auxiliares:", error);
         toast.error("Erro ao carregar auxiliares");
       });
   }, []);
@@ -456,12 +214,12 @@ export default function App() {
     // setAuxiliaries(prev => [...prev, newAuxiliary]);
     // toast.success("Auxiliar cadastrado com sucesso!");
     try {
-      console.log("Dados sendo enviados: ", newAuxiliary)
+      // console.log("Dados sendo enviados: ", newAuxiliary)
       const res = await criarAuxiliar(newAuxiliary);
       setAuxiliaries((prev) => [...prev, res]);
     } catch (error: any) {
       toast.error(`Erro ao salvar auxiliar: ${error.message}`);
-      console.error("Erro ao salvar auxiliar:", error);
+      // console.error("Erro ao salvar auxiliar:", error);
     }
   };
 
@@ -481,7 +239,7 @@ export default function App() {
       setIsEditModalOpen(false);
     } catch (error: any) {
       toast.error(`Erro ao atualizar auxiliar: ${error.message}`);
-      console.error("Erro ao atualizar auxiliar:", error);
+      // console.error("Erro ao atualizar auxiliar:", error);
     }
 
   };
@@ -531,9 +289,9 @@ export default function App() {
   };
 
   const handleDeleteActivity = (activity: Activity) => {
-    if (confirm(`Tem certeza que deseja excluir a atividade "${activity.name}"?`)) {
+    if (confirm(`Tem certeza que deseja excluir a actividade "${activity.name}"?`)) {
       setActivities(prev => prev.filter(act => act.id !== activity.id));
-      toast.success(`Atividade "${activity.name}" foi excluída com sucesso!`);
+      toast.success(`Actividade "${activity.name}" foi excluída com sucesso!`);
     }
   };
 
@@ -664,7 +422,7 @@ export default function App() {
             onClick={() => setIsViewActivitiesModalOpen(true)}
           >
             <CalendarDays className="w-4 h-4 mr-2" />
-            Ver Atividades
+            Ver Actividades
           </Button>
           <Button variant="outline" onClick={handleExportExcel} className="border-purple-200 text-purple-700 hover:bg-purple-50 hover:border-purple-300">
             <FileSpreadsheet className="w-4 h-4 mr-2" />

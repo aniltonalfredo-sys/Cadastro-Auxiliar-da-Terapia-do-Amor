@@ -245,7 +245,7 @@ export function NewAuxiliaryModal({ open, onClose, onSave, existingAuxiliaries }
         id: ""
       };
 
-      console.log("Dados mapeados para envio:", novoAuxiliar);
+      // console.log("Dados mapeados para envio:", novoAuxiliar);
       onSave(novoAuxiliar);
       handleClose();
       toast.success("Auxiliar cadastrado com sucesso!");

@@ -74,10 +74,10 @@ export function ViewActivitiesModal({
         <DialogHeader>
           <DialogTitle className="text-purple-900 flex items-center gap-2">
             <Heart className="w-5 h-5 text-purple-400 fill-purple-200" />
-            Atividades Criadas
+            Actividades Criadas
           </DialogTitle>
           <DialogDescription className="text-purple-600">
-            💕 Visualize e gerencie todas as atividades cadastradas.
+            💕 Visualize e gerencie todas as actividades cadastradas.
           </DialogDescription>
         </DialogHeader>
 
@@ -87,7 +87,7 @@ export function ViewActivitiesModal({
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
             <Input
               type="text"
-              placeholder="Buscar atividade por nome ou local..."
+              placeholder="Buscar actividade por nome ou local..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10 bg-purple-50/50 border border-purple-100 focus:border-purple-300"
@@ -127,10 +127,10 @@ export function ViewActivitiesModal({
               <div className="text-center py-12">
                 <Heart className="w-12 h-12 text-purple-300 mx-auto mb-3" />
                 <p className="text-purple-600 font-medium">
-                  {searchTerm ? "Nenhuma atividade encontrada." : "Nenhuma atividade criada ainda."}
+                  {searchTerm ? "Nenhuma actividade encontrada." : "Nenhuma actividade criada ainda."}
                 </p>
                 <p className="text-sm text-purple-400 mt-1">
-                  {!searchTerm && "Crie sua primeira atividade clicando em 'Criar Atividade'."}
+                  {!searchTerm && "Crie sua primeira actividade clicando em 'Criar Actividade'."}
                 </p>
               </div>
             ) : (
@@ -216,7 +216,7 @@ export function ViewActivitiesModal({
                             
                             {activity.participants.some(p => p.batizado) && (
                               <Badge variant="secondary" className="bg-green-100 text-green-800 text-xs">
-                                Batizados
+                                Baptizados
                               </Badge>
                             )}
                           </div>
@@ -266,7 +266,7 @@ export function ViewActivitiesModal({
             <div className="text-sm text-purple-500">
               {sortedActivities.length > 0 && (
                 <>
-                  Mostrando {sortedActivities.length} de {activities.length} atividades
+                  Mostrando {sortedActivities.length} de {activities.length} actividades
                 </>
               )}
             </div>

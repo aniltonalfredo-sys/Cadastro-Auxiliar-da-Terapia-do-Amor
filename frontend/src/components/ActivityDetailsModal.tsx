@@ -21,7 +21,7 @@ export function ActivityDetailsModal({
 }: ActivityDetailsModalProps) {
   if (!activity) return null;
 
-  // Usar os participantes que já vêm da atividade (do backend)
+  // Usar os participantes que já vêm da actividade (do backend)
   const participants = activity.participants || [];
 
   // Estatísticas
@@ -36,10 +36,10 @@ export function ActivityDetailsModal({
         <DialogHeader className="shrink-0 pb-4">
           <DialogTitle className="text-purple-900 flex items-center gap-2 text-xl">
             <Heart className="w-6 h-6 text-purple-400 fill-purple-200" />
-            Detalhes da Atividade
+            Detalhes da Actividade
           </DialogTitle>
           <DialogDescription className="text-purple-600 text-base">
-            {isPast ? "📅 Atividade realizada" : "📅 Atividade futura"} • {participants.length} participante(s)
+            {isPast ? "📅 Actividade realizada" : "📅 Actividade futura"} • {participants.length} participante(s)
           </DialogDescription>
         </DialogHeader>
 
@@ -158,7 +158,7 @@ export function ActivityDetailsModal({
                 <Users className="w-12 h-12 text-purple-300 mb-3" />
                 <p className="text-purple-600 font-medium">Nenhum participante</p>
                 <p className="text-sm text-purple-400 mt-1 text-center px-4">
-                  Esta atividade ainda não tem participantes
+                  Esta actividade ainda não tem participantes
                 </p>
               </div>
             ) : (

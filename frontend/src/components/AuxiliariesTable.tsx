@@ -77,9 +77,9 @@ export function AuxiliariesTable({
               <TableHead>Estado Civil</TableHead>
               <TableHead>Telefone/WhatsApp</TableHead>
               <TableHead className="text-center">Obreiro</TableHead>
-              <TableHead className="text-center">Batizado</TableHead>
+              <TableHead className="text-center">Baptizado</TableHead>
               <TableHead>Data de Cadastro</TableHead>
-              <TableHead className="text-center">Ações</TableHead>
+              <TableHead className="text-center">Acções</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

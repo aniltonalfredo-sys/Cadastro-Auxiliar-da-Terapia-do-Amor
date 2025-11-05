@@ -77,7 +77,7 @@ export function CreateActivityModal({ open, onClose, auxiliaries, onSaveActivity
 
     // Validações
     if (!activityName.trim() || !activityDate) {
-      toast.error("Por favor, preencha o nome e a data da atividade.");
+      toast.error("Por favor, preencha o nome e a data da actividade.");
       return;
     }
 
@@ -109,10 +109,10 @@ export function CreateActivityModal({ open, onClose, auxiliaries, onSaveActivity
       // Chamar a API do backend
       const response = await createActivity(activityData);
 
-      console.log('📦 Dados enviados para API:', activityData);
+      // console.log('📦 Dados enviados para API:', activityData);
 
       if (response.success) {
-        toast.success(`Atividade "${activityName}" criada com ${selectedAuxiliaries.size} participante(s)!`);
+        toast.success(`Actividade "${activityName}" criada com ${selectedAuxiliaries.size} participante(s)!`);
 
         // Criar objeto Activity para o estado local
         const newActivity: Activity = {
@@ -132,11 +132,12 @@ export function CreateActivityModal({ open, onClose, auxiliaries, onSaveActivity
         // Fechar e limpar
         handleClose();
       } else {
-        toast.error(response.message || "Erro ao criar atividade.");
+        toast.error(response.message || "Erro ao criar actividade.");
       }
 
     } catch (error: any) {
-      console.error("Erro ao criar atividade:", error);
+      // console.error("Erro ao criar actividade:", error);
+      toast.error("Erro ao criar actividade.");
 
       // Tratamento de erros
       if (error.response?.status === 401) {
@@ -146,7 +147,7 @@ export function CreateActivityModal({ open, onClose, auxiliaries, onSaveActivity
       } else if (error.message?.includes("Network Error")) {
         toast.error("Erro de conexão. Verifique se o servidor está rodando.");
       } else {
-        toast.error("Erro inesperado ao criar atividade.");
+        toast.error("Erro inesperado ao criar a actividade.");
       }
     } finally {
       setIsSubmitting(false);
@@ -184,10 +185,10 @@ export function CreateActivityModal({ open, onClose, auxiliaries, onSaveActivity
         <DialogHeader className="px-6 pt-6 pb-4 shrink-0">
           <DialogTitle className="text-purple-900 flex items-center gap-2">
             <Heart className="w-5 h-5 text-purple-400 fill-purple-200" />
-            Criar Nova Atividade
+            Criar Nova Actividade
           </DialogTitle>
           <DialogDescription className="text-purple-600">
-            💕 Organize atividades e selecione os auxiliares participantes.
+            💕 Organize actividades e selecione os auxiliares participantes.
           </DialogDescription>
         </DialogHeader>
 
@@ -197,7 +198,7 @@ export function CreateActivityModal({ open, onClose, auxiliaries, onSaveActivity
               {/* Activity Info */}
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="activityName">Nome da Atividade *</Label>
+                  <Label htmlFor="activityName">Nome da Actividade *</Label>
                   <Input
                     id="activityName"
                     placeholder="Ex: Retiro Espiritual, Encontro de Casais..."
@@ -386,7 +387,7 @@ export function CreateActivityModal({ open, onClose, auxiliaries, onSaveActivity
                 </>
               ) : (
                 <>
-                  💕 Criar Atividade
+                  💕 Criar Actividade
                 </>
               )}
             </Button>

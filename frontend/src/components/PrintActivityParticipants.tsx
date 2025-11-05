@@ -40,7 +40,7 @@ export function PrintActivityParticipants({ activity, participants }: PrintActiv
             <Heart className="w-12 h-12 text-purple-600 fill-purple-600" />
             <h1 className="text-purple-900">Terapia do Amor</h1>
           </div>
-          <h2 className="text-purple-700">Lista de Participantes da Atividade</h2>
+          <h2 className="text-purple-700">Lista de Participantes da Actividade</h2>
         </div>
 
         {/* Activity Details */}
@@ -56,7 +56,7 @@ export function PrintActivityParticipants({ activity, participants }: PrintActiv
                 <Calendar className="w-5 h-5 text-purple-700" />
               </div>
               <div>
-                <p className="text-xs text-purple-600">Data da Atividade</p>
+                <p className="text-xs text-purple-600">Data da Actividade</p>
                 <p className="font-medium text-purple-900">
                   {new Date(activity.date).toLocaleDateString("pt-BR", {
                     weekday: "long",
@@ -190,7 +190,7 @@ export function PrintActivityParticipants({ activity, participants }: PrintActiv
               <p className="text-2xl font-bold text-purple-900">
                 {participants.filter((p) => p.batizado).length}
               </p>
-              <p className="text-sm text-purple-600">Batizados</p>
+              <p className="text-sm text-purple-600">Baptizados</p>
             </div>
           </div>
         </div>
